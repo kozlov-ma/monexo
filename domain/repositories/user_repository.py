@@ -38,7 +38,7 @@ class InMemoryUserRepository(UserRepositoryBase):
 
     async def get_by_id(self, id: UUID) -> User:
         if id not in self.dict:
-            raise KeyError
+            raise KeyError(f'User with id {id} does not exist')
 
         return self.dict[id]
 
@@ -47,23 +47,23 @@ class InMemoryUserRepository(UserRepositoryBase):
             if user.telegram_id == telegram_id:
                 return user
 
-        raise KeyError
+        raise KeyError(f'User with telegram_id {telegram_id} does not exist')
 
     async def add_user(self, user: User) -> None:
         if user.id in self.dict:
-            raise KeyError
+            raise KeyError(f'User with id {user.id} already exists')
 
         self.dict[user.id] = user
 
     async def remove_user_by_id(self, id: UUID) -> None:
         if id not in self.dict:
-            raise KeyError
+            raise KeyError(f'User with id {id} does not exist')
 
         self.dict.pop(id)
 
     async def update_user(self, user: User) -> None:
         if user.id not in self.dict:
-            raise KeyError
+            raise KeyError(f'User with id {user.id} does not exist')
 
         self.dict[user.id] = user
 
