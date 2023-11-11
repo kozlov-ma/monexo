@@ -1,12 +1,12 @@
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 from uuid import uuid4
 from datetime import date
 from domain.models.user import User
 from domain.repositories.user_repository import UserRepository
 
 
-class UserRepositoryTests(TestCase):
-    def test_get_all(self):
+class UserRepositoryTests(IsolatedAsyncioTestCase):
+    async def test_get_all(self):
         repository: UserRepository = UserRepository()
 
         user1: User = User(
@@ -27,16 +27,16 @@ class UserRepositoryTests(TestCase):
             income=1052
         )
 
-        repository.add_user(user1)
-        repository.add_user(user2)
+        await repository.add_user(user1)
+        await repository.add_user(user2)
 
-        users: list[User] = list(repository.get_all())
+        users: list[User] = await repository.get_all()
 
         self.assertEqual(len(users), 2)
         self.assertIn(user1, users)
         self.assertIn(user2, users)
 
-    def test_get_by_id(self):
+    async def test_get_by_id(self):
         repository = UserRepository()
 
         user = User(
@@ -48,13 +48,13 @@ class UserRepositoryTests(TestCase):
             income=0
         )
 
-        repository.add_user(user)
+        await repository.add_user(user)
 
-        found_user = repository.get_by_id(user.id)
+        found_user = await repository.get_by_id(user.id)
 
         self.assertEqual(user, found_user)
 
-    def test_get_by_telegram_id(self):
+    async def test_get_by_telegram_id(self):
         repository = UserRepository()
 
         user = User(
@@ -66,13 +66,13 @@ class UserRepositoryTests(TestCase):
             income=0
         )
 
-        repository.add_user(user)
+        await repository.add_user(user)
 
-        found_user = repository.get_by_telegram_id(user.telegram_id)
+        found_user = await repository.get_by_telegram_id(user.telegram_id)
 
         self.assertEqual(user, found_user)
 
-    def test_remove_user_by_id(self):
+    async def test_remove_user_by_id(self):
         repository = UserRepository()
 
         user = User(
@@ -84,14 +84,14 @@ class UserRepositoryTests(TestCase):
             income=0
         )
 
-        repository.add_user(user)
-        repository.remove_user_by_id(user.id)
+        await repository.add_user(user)
+        await repository.remove_user_by_id(user.id)
 
-        users = repository.get_all()
+        users = await repository.get_all()
 
         self.assertNotIn(user, users)
 
-    def test_update_user(self):
+    async def test_update_user(self):
         repository = UserRepository()
 
         user = User(
@@ -103,7 +103,7 @@ class UserRepositoryTests(TestCase):
             income=0
         )
 
-        repository.add_user(user)
+        await repository.add_user(user)
 
         updated_user = User(
             id=user.id,
@@ -114,8 +114,8 @@ class UserRepositoryTests(TestCase):
             income=1
         )
 
-        repository.update_user(updated_user)
+        await repository.update_user(updated_user)
 
-        found_user = repository.get_by_id(user.id)
+        found_user = await repository.get_by_id(user.id)
 
         self.assertEqual(found_user, updated_user)
