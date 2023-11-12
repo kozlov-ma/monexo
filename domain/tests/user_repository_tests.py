@@ -11,20 +11,20 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user1: User = User(
             id=uuid4(),
-            telegram_id='user1',
+            telegram_id="user1",
             period=date(2031, 12, 31),
             budget=100,
             expense=10,
-            income=1
+            income=1,
         )
 
         user2: User = User(
             id=uuid4(),
-            telegram_id='user2',
+            telegram_id="user2",
             period=date(2042, 11, 10),
             budget=100000,
             expense=1000,
-            income=1052
+            income=1052,
         )
 
         await repository.add_user(user1)
@@ -41,11 +41,11 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user = User(
             id=uuid4(),
-            telegram_id='user',
+            telegram_id="user",
             period=date(5743, 1, 3),
             budget=7465,
             expense=561,
-            income=0
+            income=0,
         )
 
         await repository.add_user(user)
@@ -59,11 +59,11 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user = User(
             id=uuid4(),
-            telegram_id='user',
+            telegram_id="user",
             period=date(2401, 2, 7),
             budget=100,
             expense=10,
-            income=0
+            income=0,
         )
 
         await repository.add_user(user)
@@ -77,11 +77,11 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user = User(
             id=uuid4(),
-            telegram_id='user',
+            telegram_id="user",
             period=date(2401, 2, 7),
             budget=100,
             expense=10,
-            income=0
+            income=0,
         )
 
         await repository.add_user(user)
@@ -96,22 +96,22 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user = User(
             id=uuid4(),
-            telegram_id='user',
+            telegram_id="user",
             period=date(2401, 2, 7),
             budget=100,
             expense=10,
-            income=0
+            income=0,
         )
 
         await repository.add_user(user)
 
         updated_user = User(
             id=user.id,
-            telegram_id='updated_user',
+            telegram_id="updated_user",
             period=date(2402, 3, 8),
             budget=101,
             expense=11,
-            income=1
+            income=1,
         )
 
         await repository.update_user(updated_user)
