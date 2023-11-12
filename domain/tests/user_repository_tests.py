@@ -1,5 +1,4 @@
 from unittest import IsolatedAsyncioTestCase
-from uuid import uuid4
 from datetime import date
 from domain.models.user import User
 from domain.repositories.user_repository import UserRepository
@@ -10,21 +9,19 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
         repository: UserRepository = UserRepository()
 
         user1: User = User(
-            id=uuid4(),
-            telegram_id='user1',
-            period=date(2031, 12, 31),
-            budget=100,
-            expense=10,
-            income=1
+            id=0,
+            period=date(2111, 11, 11),
+            whole_budget=111,
+            expense_today=11,
+            income_today=1,
         )
 
         user2: User = User(
-            id=uuid4(),
-            telegram_id='user2',
-            period=date(2042, 11, 10),
-            budget=100000,
-            expense=1000,
-            income=1052
+            id=1,
+            period=date(2222, 12, 22),
+            whole_budget=222,
+            expense_today=22,
+            income_today=2,
         )
 
         await repository.add_user(user1)
@@ -39,13 +36,12 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
     async def test_get_by_id(self):
         repository = UserRepository()
 
-        user = User(
-            id=uuid4(),
-            telegram_id='user',
-            period=date(5743, 1, 3),
-            budget=7465,
-            expense=561,
-            income=0
+        user: User = User(
+            id=0,
+            period=date(2111, 11, 11),
+            whole_budget=111,
+            expense_today=11,
+            income_today=1,
         )
 
         await repository.add_user(user)
@@ -54,34 +50,15 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         self.assertEqual(user, found_user)
 
-    async def test_get_by_telegram_id(self):
-        repository = UserRepository()
-
-        user = User(
-            id=uuid4(),
-            telegram_id='user',
-            period=date(2401, 2, 7),
-            budget=100,
-            expense=10,
-            income=0
-        )
-
-        await repository.add_user(user)
-
-        found_user = await repository.get_by_telegram_id(user.telegram_id)
-
-        self.assertEqual(user, found_user)
-
     async def test_remove_user_by_id(self):
         repository = UserRepository()
 
-        user = User(
-            id=uuid4(),
-            telegram_id='user',
-            period=date(2401, 2, 7),
-            budget=100,
-            expense=10,
-            income=0
+        user: User = User(
+            id=0,
+            period=date(2111, 11, 11),
+            whole_budget=111,
+            expense_today=11,
+            income_today=1,
         )
 
         await repository.add_user(user)
@@ -94,24 +71,22 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
     async def test_update_user(self):
         repository = UserRepository()
 
-        user = User(
-            id=uuid4(),
-            telegram_id='user',
-            period=date(2401, 2, 7),
-            budget=100,
-            expense=10,
-            income=0
+        user: User = User(
+            id=0,
+            period=date(2111, 11, 11),
+            whole_budget=111,
+            expense_today=11,
+            income_today=1,
         )
 
         await repository.add_user(user)
 
-        updated_user = User(
+        updated_user: User = User(
             id=user.id,
-            telegram_id='updated_user',
-            period=date(2402, 3, 8),
-            budget=101,
-            expense=11,
-            income=1
+            period=date(2111, 11, 11),
+            whole_budget=333,
+            expense_today=33,
+            income_today=3,
         )
 
         await repository.update_user(updated_user)
