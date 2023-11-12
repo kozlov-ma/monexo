@@ -13,7 +13,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             id=uuid4(),
             telegram_id="user1",
             period=date(2031, 12, 31),
-            budget=100,
+            whole_budget=100,
             expense=10,
             income=1,
         )
@@ -22,7 +22,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             id=uuid4(),
             telegram_id="user2",
             period=date(2042, 11, 10),
-            budget=100000,
+            whole_budget=100000,
             expense=1000,
             income=1052,
         )
@@ -43,7 +43,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             id=uuid4(),
             telegram_id="user",
             period=date(5743, 1, 3),
-            budget=7465,
+            whole_budget=7465,
             expense=561,
             income=0,
         )
@@ -61,7 +61,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             id=uuid4(),
             telegram_id="user",
             period=date(2401, 2, 7),
-            budget=100,
+            whole_budget=100,
             expense=10,
             income=0,
         )
@@ -79,7 +79,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             id=uuid4(),
             telegram_id="user",
             period=date(2401, 2, 7),
-            budget=100,
+            whole_budget=100,
             expense=10,
             income=0,
         )
@@ -98,7 +98,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             id=uuid4(),
             telegram_id="user",
             period=date(2401, 2, 7),
-            budget=100,
+            whole_budget=100,
             expense=10,
             income=0,
         )
@@ -109,7 +109,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             id=user.id,
             telegram_id="updated_user",
             period=date(2402, 3, 8),
-            budget=101,
+            whole_budget=101,
             expense=11,
             income=1,
         )
