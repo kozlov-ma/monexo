@@ -9,19 +9,12 @@ class UserRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def get_by_id(self, id: UUID) -> User:
-        pass
-
-    @abstractmethod
-    async def exists_id(self, id: UUID) -> bool:
-        pass
-
-    @abstractmethod
-    async def get_by_telegram_id(self, telegram_id: int) -> User:
-        pass
-
-    @abstractmethod
-    async def exists_telegram_id(self, telegram_id: int) -> bool:
+    async def get_by_id(self, id: int) -> User:
+        """
+        Возвращает пользователя по его id
+        :param id: id пользователя в telegram
+        :return: возвращает User, если пользователя с таким id нет, возвращает None
+        """
         pass
 
     @abstractmethod
@@ -29,7 +22,7 @@ class UserRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def remove_user_by_id(self, id: UUID) -> None:
+    async def remove_user_by_id(self, id: int) -> None:
         pass
 
     @abstractmethod
@@ -39,33 +32,16 @@ class UserRepositoryBase(ABC):
 
 class InMemoryUserRepository(UserRepositoryBase):
     def __init__(self):
-        self.dict: dict[UUID, User] = {}
+        self.dict: dict[int, User] = {}
 
     async def get_all(self) -> list[User]:
         return list(self.dict.values())
 
-    async def get_by_id(self, id: UUID) -> User:
-        if id not in self.dict:
-            raise KeyError(f"User with id {id} does not exist")
+    async def get_by_id(self, id: int) -> User | None:
+        if id in self.dict:
+            return self.dict[id]
 
-        return self.dict[id]
-
-    async def exists_id(self, id: UUID) -> bool:
-        return id in self.dict
-
-    async def get_by_telegram_id(self, telegram_id: int) -> User:
-        for user in self.dict.values():
-            if user.telegram_id == telegram_id:
-                return user
-
-        raise KeyError(f"User with telegram_id {telegram_id} does not exist")
-
-    async def exists_telegram_id(self, telegram_id: int) -> bool:
-        for user in self.dict.values():
-            if user.telegram_id == telegram_id:
-                return True
-
-        return False
+        return None
 
     async def add_user(self, user: User) -> None:
         if user.id in self.dict:
@@ -73,7 +49,7 @@ class InMemoryUserRepository(UserRepositoryBase):
 
         self.dict[user.id] = user
 
-    async def remove_user_by_id(self, id: UUID) -> None:
+    async def remove_user_by_id(self, id: int) -> None:
         if id not in self.dict:
             raise KeyError(f"User with id {id} does not exist")
 

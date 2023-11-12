@@ -1,20 +1,19 @@
-import dataclasses
-import typing
-from dataclasses import dataclass
+from __future__ import annotations
+from dataclasses import dataclass, replace
 from datetime import date
-from uuid import UUID
 
 
-@dataclass
-class User:  # TODO переделать в неизменяемый класс
-    id: UUID
-
-    telegram_id: int
+@dataclass(frozen=True)
+class User:
+    id: int
     period: date
     whole_budget: float
-
     expense_today: float
     income_today: float
+
+    @property
+    def daily_budget(self) -> float:
+        return self.whole_budget / (self.period - date.today()).days
 
     @property
     def budget_today(self) -> float:
@@ -24,75 +23,37 @@ class User:  # TODO переделать в неизменяемый класс
     def today_diff(self) -> float:
         return self.income_today - self.expense_today
 
-    @property
-    def daily_budget(self) -> float:
-        return self.whole_budget / (self.period - date.today()).days
-
-    def apply_today(self) -> typing.Self:
+    def apply_today(self) -> User:
         """
         Applies today's income and expense to the budget.
         :return: User
         """
 
-        return dataclasses.replace(
+        return replace(
             self,
             whole_budget=self.whole_budget + self.today_diff,
             expense_today=0,
             income_today=0,
         )
 
-    def add_income_today(self, amount: float) -> typing.Self:
-        """
-        Adds income to today's budget
-        :return: User
-        """
-
-        d = self.expense_today - amount
-
-        if self.expense_today == 0:
-            return dataclasses.replace(self, income_today=self.income_today + amount)
-        if d >= 0:
-            return dataclasses.replace(
-                self,
-                expense_today=d,
-            )
-        if d < 0:
-            return dataclasses.replace(
-                self,
-                expense_today=0,
-                income_today=self.income_today + abs(d),
-            )
-
-    def add_income(self, amount: float) -> typing.Self:
+    def add_income(self, amount: float) -> User:
         """
         Adds income to the whole budget
         :return: User
         """
 
-        return dataclasses.replace(
+        return replace(
             self,
             income_today=self.income_today + amount,
-            whole_budget=self.whole_budget + amount,
         )
 
-    def add_expense(self, amount: float) -> typing.Self:
+    def add_expense(self, amount: float) -> User:
         """
         Applies expense to today's budget, and, if expense is more than today's budget, applies it to the whole budget.
         :return: User
         """
 
-        d = self.budget_today - amount
-
-        if self.budget_today == 0:
-            return dataclasses.replace(self, expense_today=self.expense_today + amount)
-        if d >= 0:
-            return dataclasses.replace(
-                self,
-                expense_today=self.expense_today + amount,
-            )
-        if d < 0:
-            return dataclasses.replace(
-                self,
-                expense_today=self.expense_today + amount,
-                whole_budget=self.whole_budget + d,
-            )
+        return replace(
+            self,
+            expense_today=self.expense_today + amount
+        )
