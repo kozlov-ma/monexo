@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from domain.repositories.user_repository import UserRepositoryBase
+
 
 @dataclass
 class ApplicationState:
-    bot_token: str = None
     admin_usernames: list[str] = None
+    users_repo: UserRepositoryBase = None
 
 
 _state_instance: ApplicationState | None = None

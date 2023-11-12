@@ -7,12 +7,16 @@ from datetime import date
 class User:
     id: int
     period: date
-    whole_budget: float
-    expense_today: float
-    income_today: float
+
+    whole_budget: float = 0
+
+    expense_today: float = 0
+    income_today: float = 0
 
     @property
     def daily_budget(self) -> float:
+        if self.period == date.today():
+            return self.whole_budget
         return self.whole_budget / (self.period - date.today()).days
 
     @property
@@ -53,7 +57,4 @@ class User:
         :return: User
         """
 
-        return replace(
-            self,
-            expense_today=self.expense_today + amount
-        )
+        return replace(self, expense_today=self.expense_today + amount)
