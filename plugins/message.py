@@ -1,6 +1,5 @@
 import re
 
-import loguru
 from telethon import events
 from telethon.tl.custom import Message
 from telethon.tl.types import User
@@ -39,7 +38,7 @@ async def init(bot):
                 await state.get().users_repo.update_user(new_user)
 
                 await event.respond(
-                    f"Потрачено {result}, остаток на сегодня {new_user.budget_today}. До {user.period} осталось {user.whole_budget}"
+                    f"Потрачено {result}, остаток на сегодня {new_user.budget_today}. До {new_user.period} осталось {new_user.whole_budget - new_user.expense_today}"
                 )
 
         except Exception as e:
