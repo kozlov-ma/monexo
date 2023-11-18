@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from uuid import UUID
+
 from domain.models.user import User
 
 
@@ -27,6 +27,10 @@ class UserRepositoryBase(ABC):
 
     @abstractmethod
     async def update_user(self, user: User) -> None:
+        pass
+
+    @abstractmethod
+    async def insert_user(self, user: User) -> None:
         pass
 
 
@@ -59,6 +63,9 @@ class InMemoryUserRepository(UserRepositoryBase):
         if user.id not in self.dict:
             raise KeyError(f"User with id {user.id} does not exist")
 
+        self.dict[user.id] = user
+
+    async def insert_user(self, user: User) -> None:
         self.dict[user.id] = user
 
 
