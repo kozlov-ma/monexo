@@ -18,6 +18,8 @@ async def is_message_settings_change(event: Message) -> bool:
 
 
 async def init(bot):
+    return
+
     @bot.on(events.NewMessage(pattern="/settings"))
     async def settings(event: Message) -> None:
         sender: User = await event.get_sender()

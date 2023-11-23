@@ -32,6 +32,10 @@ async def init(bot):
                 await event.respond(
                     f"Добавлено {result}, теперь остаток на сегодня {new_user.budget_today}."
                 )
+            elif result < 0:
+                await event.respond(
+                    f"Введена отрицательная сумма: {result}. Если хотите потратить деньги, введите положительное число, например {abs(result)}"
+                )
             else:
                 new_user = user.add_expense(result)
 
