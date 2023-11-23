@@ -6,7 +6,7 @@ from telethon.tl.types import User
 
 from pkg import state
 
-MATH_REGEX = re.compile(r"[\+\*\(\)\d\.\s/]+\Z", re.A)
+MATH_REGEX = re.compile(r"(?!.*([^\d\s])(?:.*\1))(^[\-\+\*\(\)\/\d\s.]+$)", re.A)
 
 
 async def init(bot):
@@ -34,7 +34,7 @@ async def init(bot):
                 )
             elif result < 0:
                 await event.respond(
-                    f"Введена отрицательная сумма: {result}. Если хотите потратить деньги, введите положительное число, например {abs(result)}"
+                    f"Введена отрицательная сумма: **{result}**. Если хотите потратить деньги, введите положительное число, например **{abs(result)}**"
                 )
             else:
                 new_user = user.add_expense(result)
