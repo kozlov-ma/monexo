@@ -11,16 +11,12 @@ class SettingsConversationState(enum.Enum):
     WAIT_FOR_SUM = enum.auto()
     WAIT_FOR_DATE = enum.auto()
 
-    new_user: User = None
-
 
 @dataclass
 class ApplicationState:
     admin_usernames: list[str] = None
     users_repo: UserRepositoryBase = None
-    conversation_states: dict[int, SettingsConversationState] = dataclasses.field(
-        default=SettingsConversationState
-    )
+    conversation_states: dict[int, SettingsConversationState] = None
 
 
 _state_instance: ApplicationState | None = None
@@ -33,7 +29,7 @@ def init(*args, **kwargs) -> None:
             "Tried to initialize new Application State, but it already exists."
         )
 
-    _state_instance = ApplicationState(*args, **kwargs)
+    _state_instance = ApplicationState(*args, **kwargs, conversation_states={})
 
 
 def get() -> ApplicationState:
