@@ -7,6 +7,7 @@ from telethon.tl.types import User
 from pkg import state
 
 MATH_REGEX = re.compile(r"(?!.*([^\d\s])(?:.*\1))(^[\-\+\*\(\)\/\d\s.]+$)", re.A)
+SINGLE_OPERAND_REGEX = re.compile(f"[\+\-]\d+$", re.A)
 
 
 async def init(bot):
@@ -24,17 +25,24 @@ async def init(bot):
 
         try:
             result = eval(event.text, {}, {})
-            if event.text.startswith("+"):
-                new_user = user.add_income(result)
+            if SINGLE_OPERAND_REGEX.match(event.text):
+                new_user = None
 
+                if result > 0:
+                    new_user = user.add_income(result)
+                else:
+                    new_user = user.add_expense(abs(result))
+
+                action = "Потрачено" if result < 0 else "Добавлено"
                 await state.get().users_repo.update_user(new_user)
 
                 await event.respond(
-                    f"Добавлено {result}, теперь остаток на сегодня {new_user.budget_today}."
+                    f"{action} {abs(result)}, теперь остаток на сегодня {new_user.budget_today}."
                 )
             elif result < 0:
                 await event.respond(
-                    f"Введена отрицательная сумма: **{result}**. Если хотите потратить деньги, введите положительное число, например **{abs(result)}**"
+                    f"Введена отрицательная сумма: **{result}**. Если хотите потратить деньги, введите положительное "
+                    f"число, например **{abs(result)}**"
                 )
             else:
                 new_user = user.add_expense(result)
