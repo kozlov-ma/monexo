@@ -56,6 +56,12 @@ def stats_for_today(user: User) -> str:
 
     """
 
+    msg += f"""
+**Остаток до {user.period}**
+{user.whole_budget - user.expense_today + user.income_today}
+------------------------
+    """
+
     # FIXME: не добавлять эту секцию если остался один день
     msg += f"""
 **Бюджет на день**

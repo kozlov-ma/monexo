@@ -26,8 +26,6 @@ async def init(bot):
         try:
             result = eval(event.text, {}, {})
             if SINGLE_OPERAND_REGEX.match(event.text):
-                new_user = None
-
                 if result > 0:
                     new_user = user.add_income(result)
                 else:
