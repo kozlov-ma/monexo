@@ -16,8 +16,10 @@ class User:
 
     @property
     def daily_budget(self) -> float:
+        new_whole_budget = self.whole_budget - self.expense_today + self.income_today
+
         days = (self.period - date.today()).days + 1
-        return self.whole_budget / days
+        return new_whole_budget / days
 
     @property
     def budget_today(self) -> float:
