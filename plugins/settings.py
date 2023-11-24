@@ -9,7 +9,7 @@ from telethon.tl.types import User
 from domain.models import user
 from pkg import state
 from pkg.state import SettingsConversationState
-
+import domain
 
 async def is_message_settings_change(event: Message) -> bool:
     sender: User = await event.get_sender()
@@ -18,8 +18,6 @@ async def is_message_settings_change(event: Message) -> bool:
 
 
 async def init(bot):
-    return
-
     @bot.on(events.NewMessage(pattern="/settings"))
     async def settings(event: Message) -> None:
         sender: User = await event.get_sender()
@@ -43,22 +41,21 @@ async def init(bot):
                 "is_message_settings_change works improperly."
             )
 
-        # FIXME кривой костыль, не знаю как пофиксить
         if conv_state == SettingsConversationState.WAIT_FOR_SUM:
             budget = eval(event.text, {}, {})
-            new_user = user.User(
-                sender.id, period=datetime.date.today(), whole_budget=budget
-            )
-            conv_state = SettingsConversationState.WAIT_FOR_DATE
-            conv_states[sender.id] = conv_state
-
-            # conv_state.new_user = new_user FIXME
+            user: domain.User = await state.get().users_repo.get_by_id(sender.id)
+            new_user = dataclasses.replace(user, whole_budget=budget,
+                                           expense_today=0, income_today=0)
+            await state.get().users_repo.update_user(new_user)
+            conv_states[sender.id] = SettingsConversationState.WAIT_FOR_DATE
             await event.respond(f"Теперь введите дату, до которой планируете траты:")
         elif conv_state == SettingsConversationState.WAIT_FOR_DATE:
             try:
+                user: domain.User = await state.get().users_repo.get_by_id(sender.id)
                 date = datetime.datetime.strptime(event.text, "%d.%m.%y").date()
-                new_user = dataclasses.replace(conv_state.new_user, period=date)
+                new_user = dataclasses.replace(user, period=date)
                 await state.get().users_repo.insert_user(new_user)
+                state.get().conversation_states.pop(sender.id)
             except Exception as e:
                 loguru.logger.error(f"Error: {e}")
                 await event.respond(
