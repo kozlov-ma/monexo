@@ -20,7 +20,7 @@ async def init(bot):
         if await settings.is_message_settings_change(event):
             return
 
-        user = await state.get().users_repo.get_by_id(sender.id)
+        user = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
 
         if user is None:
             await event.respond(

@@ -52,7 +52,7 @@ async def init(bot):
         if conv_state == SettingsConversationState.WAIT_FOR_SUM:
             try:
                 budget = eval(event.text, {}, {})  # TODO проверка на >0
-                user: domain.User = await state.get().users_repo.get_by_id(sender.id)
+                user: domain.User = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
                 new_user = dataclasses.replace(
                     user, whole_budget=budget, expense_today=0, income_today=0
                 )
@@ -66,7 +66,7 @@ async def init(bot):
                 )
         elif conv_state == SettingsConversationState.WAIT_FOR_DATE:
             try:
-                user: domain.User = await state.get().users_repo.get_by_id(sender.id)
+                user: domain.User = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
                 days = int(event.text)  # TODO добавить проверку на >0
                 user = dataclasses.replace(user, days_left=days)
                 await state.get().users_repo.add_or_update_user(user)

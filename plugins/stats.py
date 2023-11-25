@@ -13,7 +13,7 @@ async def init(bot):
     async def stats(event: Message) -> None:
         sender: TgUser = await event.get_sender()
 
-        user = await state.get().users_repo.get_by_id(sender.id)
+        user = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
         if user is None:
             await event.respond(
                 "Чтобы использовать бота, зарегистрируйтесть с помощью /start"
