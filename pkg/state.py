@@ -8,8 +8,10 @@ from domain.repositories.user_repository import UserRepositoryBase
 
 
 class SettingsConversationState(enum.Enum):
+    STARTED = enum.auto()
     WAIT_FOR_SUM = enum.auto()
     WAIT_FOR_DATE = enum.auto()
+    ENDED = enum.auto()  # TODO костыль -- нужно исправить
 
 
 @dataclass

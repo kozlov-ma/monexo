@@ -1,20 +1,30 @@
 import dataclasses
-import datetime
 
 import loguru
 from telethon import events
 from telethon.tl.custom import Message
 from telethon.tl.types import User
 
-from domain.models import user
+import domain
 from pkg import state
 from pkg.state import SettingsConversationState
-import domain
+
 
 async def is_message_settings_change(event: Message) -> bool:
     sender: User = await event.get_sender()
+    conv_state = state.get().conversation_states.get(sender.id)
+    if conv_state is None:
+        return False
+    elif conv_state == SettingsConversationState.STARTED:
+        state.get().conversation_states[
+            sender.id
+        ] = SettingsConversationState.WAIT_FOR_SUM
+        return False
+    elif conv_state == SettingsConversationState.ENDED:
+        state.get().conversation_states.pop(sender.id)
+        return True
 
-    return sender.id in state.get().conversation_states
+    return True
 
 
 async def init(bot):
@@ -22,9 +32,7 @@ async def init(bot):
     async def settings(event: Message) -> None:
         sender: User = await event.get_sender()
 
-        state.get().conversation_states[
-            sender.id
-        ] = SettingsConversationState.WAIT_FOR_SUM
+        state.get().conversation_states[sender.id] = SettingsConversationState.STARTED
 
         await event.respond(f"Отлично! Введите сумму, которую хотите потратить:")
 
@@ -42,22 +50,34 @@ async def init(bot):
             )
 
         if conv_state == SettingsConversationState.WAIT_FOR_SUM:
-            budget = eval(event.text, {}, {})
-            user: domain.User = await state.get().users_repo.get_by_id(sender.id)
-            new_user = dataclasses.replace(user, whole_budget=budget,
-                                           expense_today=0, income_today=0)
-            await state.get().users_repo.update_user(new_user)
-            conv_states[sender.id] = SettingsConversationState.WAIT_FOR_DATE
-            await event.respond(f"Теперь введите дату, до которой планируете траты:")
+            try:
+                budget = eval(event.text, {}, {})  # TODO проверка на >0
+                user: domain.User = await state.get().users_repo.get_by_id(sender.id)
+                new_user = dataclasses.replace(
+                    user, whole_budget=budget, expense_today=0, income_today=0
+                )
+                await state.get().users_repo.insert_user(new_user)
+                conv_states[sender.id] = SettingsConversationState.WAIT_FOR_DATE
+                await event.respond(f"На сколько дней вы планируете бюджет?")
+            except Exception as e:
+                loguru.logger.exception(f"Error: {e}")
+                await event.respond(
+                    f"Возможно, вы неправильно указали бюджет. Укажите число, например 1000:"
+                )
         elif conv_state == SettingsConversationState.WAIT_FOR_DATE:
             try:
                 user: domain.User = await state.get().users_repo.get_by_id(sender.id)
-                date = datetime.datetime.strptime(event.text, "%d.%m.%y").date()
-                new_user = dataclasses.replace(user, period=date)
-                await state.get().users_repo.insert_user(new_user)
-                state.get().conversation_states.pop(sender.id)
-            except Exception as e:
-                loguru.logger.error(f"Error: {e}")
+                days = int(event.text)  # TODO добавить проверку на >0
+                user = dataclasses.replace(user, days_left=days)
+                await state.get().users_repo.insert_user(user)
+                state.get().conversation_states[
+                    sender.id
+                ] = SettingsConversationState.ENDED
                 await event.respond(
-                    f"Возможно, вы неправильно указали дату. Попробуйте ещё раз:"
+                    f"Отлично! Задан бюджет **{user.whole_budget}** на **{user.days_left}** дней."  # FIXME не меняется срок для пользователя
+                )
+            except Exception as e:
+                loguru.logger.exception(f"Error: {e}")
+                await event.respond(
+                    f"Возможно, вы неправильно указали количетство дней. Укажите число, например 7:"
                 )

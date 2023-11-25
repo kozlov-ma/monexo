@@ -10,7 +10,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user1: User = User(
             id=0,
-            period=date(2111, 11, 11),
+            days_left=999,
             whole_budget=111,
             expense_today=11,
             income_today=1,
@@ -18,7 +18,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user2: User = User(
             id=1,
-            period=date(2222, 12, 22),
+            days_left=999,
             whole_budget=222,
             expense_today=22,
             income_today=2,
@@ -38,7 +38,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user: User = User(
             id=0,
-            period=date(2111, 11, 11),
+            days_left=999,
             whole_budget=111,
             expense_today=11,
             income_today=1,
@@ -55,7 +55,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user: User = User(
             id=0,
-            period=date(2111, 11, 11),
+            days_left=999,
             whole_budget=111,
             expense_today=11,
             income_today=1,
@@ -73,7 +73,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         user: User = User(
             id=0,
-            period=date(2111, 11, 11),
+            days_left=999,
             whole_budget=111,
             expense_today=11,
             income_today=1,
@@ -83,7 +83,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         updated_user: User = User(
             id=user.id,
-            period=date(2111, 11, 11),
+            days_left=999,
             whole_budget=333,
             expense_today=33,
             income_today=3,

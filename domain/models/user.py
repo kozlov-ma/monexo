@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from datetime import date
 
 
 @dataclass(frozen=True)
 class User:
     id: int
-    period: date
+
+    days_left: int
 
     whole_budget: float = 0
 
@@ -18,8 +18,7 @@ class User:
     def daily_budget(self) -> float:
         new_whole_budget = self.whole_budget - self.expense_today + self.income_today
 
-        days = (self.period - date.today()).days + 1
-        return new_whole_budget / days
+        return new_whole_budget / self.days_left
 
     @property
     def budget_today(self) -> float:
@@ -36,6 +35,7 @@ class User:
             whole_budget=self.whole_budget - self.expense_today,
             expense_today=0,
             income_today=0,
+            days_left=self.days_left - 1,
         )
 
     def add_income(self, amount: float) -> User:

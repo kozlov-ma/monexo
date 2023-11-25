@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from telethon import events, TelegramClient
 from telethon.tl.custom import Message
 from telethon.tl.types import User as TgUser
@@ -14,7 +16,7 @@ async def init(bot):
         user = await state.get().users_repo.get_by_id(sender.id)
         if user is None:
             await event.respond(
-                "Сначала введите укажите срок и бюджет с помощью /start"
+                "Чтобы использовать бота, зарегистрируйтесть с помощью /start"
             )
             return
 
@@ -56,18 +58,19 @@ def stats_for_today(user: User) -> str:
 
     """
 
-    msg += f"""
-**Остаток до {user.period}**
+    if user.days_left <= 1:
+        msg += f"""
+**Остаток до {datetime.today + timedelta(user.days_left)}**
 {user.whole_budget - user.expense_today + user.income_today}
-------------------------
-    """
+---------------------
 
-    # FIXME: не добавлять эту секцию если остался один день
-    msg += f"""
+        """
+
+        msg += f"""
 **Бюджет на день**
 {user.daily_budget}
 --------------
 
-    """
+        """
 
     return msg
