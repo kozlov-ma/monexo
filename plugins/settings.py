@@ -54,7 +54,7 @@ async def init(bot):
                 budget = eval(event.text, {}, {})  # TODO проверка на >0
                 user: domain.User = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
                 new_user = dataclasses.replace(
-                    user, whole_budget=budget, expense_today=0, income_today=0
+                    user, remaining_budget=budget, expense_today=0, income_today=0
                 )
                 await state.get().users_repo.add_or_update_user(new_user)
                 conv_states[sender.id] = SettingsConversationState.WAIT_FOR_DATE
@@ -68,13 +68,20 @@ async def init(bot):
             try:
                 user: domain.User = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
                 days = int(event.text)  # TODO добавить проверку на >0
-                user = dataclasses.replace(user, days_left=days)
+                user = dataclasses.replace(
+                    user,
+                    days_left=days,
+                    budget_today=user.remaining_budget / days,
+                    remaining_budget=user.remaining_budget
+                    - user.remaining_budget / days,
+                )
                 await state.get().users_repo.add_or_update_user(user)
                 state.get().conversation_states[
                     sender.id
                 ] = SettingsConversationState.ENDED
                 await event.respond(
-                    f"Отлично! Задан бюджет **{user.whole_budget}** на **{user.days_left}** дней."  # FIXME не меняется срок для пользователя
+                    f"Отлично! Задан бюджет **{user.remaining_budget + user.budget_today}** на **{user.days_left}** "
+                    f"дней.\nОстаток на сегодня: **{user.budget_today}**"  # FIXME не меняется срок для пользователя
                 )
             except Exception as e:
                 loguru.logger.exception(f"Error: {e}")

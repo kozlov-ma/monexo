@@ -9,6 +9,8 @@ from app import state
 
 
 async def init(bot):
+    return  # FIXME переделать stats_for_today
+
     @bot.on(events.NewMessage(pattern="/stats"))
     async def stats(event: Message) -> None:
         sender: TgUser = await event.get_sender()
@@ -61,7 +63,7 @@ def stats_for_today(user: User) -> str:
     if user.days_left <= 1:
         msg += f"""
 **Остаток до {datetime.today + timedelta(user.days_left)}**
-{user.whole_budget - user.expense_today + user.income_today}
+{user.remaining_budget - user.expense_today + user.income_today}
 ---------------------
 
         """
