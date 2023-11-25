@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from dataclasses import replace
 from domain.models.user import User
 
 
@@ -30,7 +30,11 @@ class UserRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def insert_user(self, user: User) -> None:
+    async def update_user_partially(self, id: int, **kwargs):
+        pass
+
+    @abstractmethod
+    async def add_or_update_user(self, user: User) -> None:
         pass
 
 
@@ -65,8 +69,26 @@ class InMemoryUserRepository(UserRepositoryBase):
 
         self.dict[user.id] = user
 
-    async def insert_user(self, user: User) -> None:
-        self.dict[user.id] = user
+    async def update_user_partially(self, id: int,
+                                    days_left: int = None, whole_budget: float = None,
+                                    expense_today: float = None, income_today: float = None):
+        if id not in self.dict:
+            raise KeyError(f"User with id {id} does not exist")
+
+        kwargs = {k: v for k, v in {
+            'days_left': days_left,
+            'whole_budget': whole_budget,
+            'expense_today': expense_today,
+            'income_today': income_today
+        }.items() if v is not None}
+
+        self.dict[id] = replace(self.dict[id], **kwargs)
+
+    async def add_or_update_user(self, user: User) -> None:
+        if user.id not in self.dict:
+            await self.add_user(user)
+        else:
+            await self.update_user(user)
 
 
 UserRepository: type = InMemoryUserRepository
