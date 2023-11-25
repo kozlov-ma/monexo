@@ -1,5 +1,4 @@
 from unittest import IsolatedAsyncioTestCase
-from datetime import date
 from domain.models.user import User
 from domain.repositories.user_repository import UserRepository
 
@@ -24,14 +23,17 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             income_today=2,
         )
 
-        await repository.add_user(user1)
-        await repository.add_user(user2)
+        add_user_result_1 = await repository.add_user(user1)
+        add_user_result_2 = await repository.add_user(user2)
 
-        users: list[User] = await repository.get_all()
+        result_users = await repository.get_all()
 
-        self.assertEqual(len(users), 2)
-        self.assertIn(user1, users)
-        self.assertIn(user2, users)
+        self.assertTrue(add_user_result_1.is_ok)
+        self.assertTrue(add_user_result_2.is_ok)
+        self.assertTrue(result_users.is_ok)
+        self.assertEqual(len(result_users.ok().value), 2)
+        self.assertIn(user1, result_users.ok().value)
+        self.assertIn(user2, result_users.ok().value)
 
     async def test_get_by_id(self):
         repository = UserRepository()
