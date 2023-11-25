@@ -1,4 +1,3 @@
-import datetime
 import re
 
 import loguru
@@ -6,7 +5,6 @@ from telethon import events
 from telethon.tl.custom import Message
 from telethon.tl.types import User
 
-from app import state
 from app.budget import add_income, add_expense
 from domain.models.budget import Spent, SpentOverDailyBudget, SpentAllBudget
 from plugins import settings
@@ -21,14 +19,6 @@ async def init(bot):
         sender: User = await event.get_sender()
 
         if await settings.is_message_settings_change(event):
-            return
-
-        user = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
-
-        if user is None:
-            await event.respond(
-                "Чтобы использовать бота, зарегистрируйтесь с помощью /start"
-            )
             return
 
         try:
@@ -46,7 +36,12 @@ async def init(bot):
             return
 
         if SINGLE_OPERAND_REGEX.match(event.text) and result > 0:
-            change = (await add_income(user, amount)).expect("checked before")
+            change = (await add_income(sender.id, amount)).unwrap_or(None)
+            if change is None:
+                await event.respond(
+                    "Чтобы использовать бота, зарегистрируйтесь с помощью /start"
+                )
+                return
             await event.respond(
                 f"Добавлено **{change.amount}**. Теперь на сегодня доступно **{change.new_budget_today}**"
             )
@@ -58,7 +53,13 @@ async def init(bot):
                 )
                 return
             else:
-                change = (await add_expense(user, amount)).expect("checked before")
+                change = (await add_expense(sender.id, amount)).unwrap_or(None)
+                if change is None:
+                    await event.respond(
+                        "Чтобы использовать бота, зарегистрируйтесь с помощью /start"
+                    )
+                    return
+
                 match change:
                     case Spent(amount, new_budget_today):
                         await event.respond(

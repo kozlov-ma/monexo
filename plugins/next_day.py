@@ -10,6 +10,8 @@ from app import state
 from domain import User
 from domain.models.budget import DayResults, PeriodEnded
 
+from option import Result
+
 
 async def init(bot: TelegramClient):
     @bot.on(events.NewMessage(pattern="/nextday"))
@@ -43,11 +45,11 @@ async def update_users_periodically(bot: TelegramClient, duration_secs: float) -
 async def next_day_for(bot: TelegramClient, user: User) -> None:
     tg_user = TgUser(user.id)
 
-    result = await app.budget.apply_today(user)
-    if result.is_err:
+    result = (await app.budget.apply_today(user.id)).unwrap_or(None)
+    if result is None:
         return
 
-    match result.unwrap():
+    match result:
         case PeriodEnded(saved=float(s)):
             if s <= 1e-3:
                 msg = "Период закончился. Начнём сначала? /start"
@@ -76,6 +78,6 @@ async def next_day_for(bot: TelegramClient, user: User) -> None:
             await bot.send_message(tg_user, msg)
         case _:
             loguru.logger.error(
-                f"Unknown result type for 'app.budget.apply_today()': {type(result.unwrap())}, result: {result.unwrap()}"
+                f"Unknown result type for 'app.budget.apply_today()': {type(result)}, result: {result}"
             )
             await bot.send_message(tg_user, "Произошла ошибка.")

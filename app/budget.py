@@ -1,7 +1,6 @@
 from dataclasses import replace
 
 from app import state
-from domain import User
 from domain.models.budget import (
     Spent,
     Added,
@@ -15,12 +14,13 @@ from app import errors
 
 
 async def add_expense(
-    user: User, amount: float
+    user_id: int, amount: float
 ) -> Result[Spent | SpentOverDailyBudget | SpentAllBudget, errors.UserDoesNotExist]:
-    if not await state.get().users_repo.contains(user):
+    user = (await state.get().users_repo.get_by_id(user_id)).unwrap_or(None)
+    if user is None:
         return Err(
             errors.UserDoesNotExist(
-                f"User {user} does not exist in the repository, therefore cannot spend money"
+                f"User {user} does not exist in the repository, therefore cannot add money"
             )
         )
 
@@ -51,9 +51,10 @@ async def add_expense(
 
 
 async def add_income(
-    user: User, amount: float
+    user_id: int, amount: float
 ) -> Result[Added, errors.UserDoesNotExist]:
-    if not await state.get().users_repo.contains(user):
+    user = (await state.get().users_repo.get_by_id(user_id)).unwrap_or(None)
+    if user is None:
         return Err(
             errors.UserDoesNotExist(
                 f"User {user} does not exist in the repository, therefore cannot add money"
@@ -72,12 +73,13 @@ async def add_income(
 
 
 async def apply_today(
-    user: User,
+    user_id: int,
 ) -> Result[DayResults | PeriodEnded, errors.UserDoesNotExist]:
-    if not await state.get().users_repo.contains(user):
+    user = (await state.get().users_repo.get_by_id(user_id)).unwrap_or(None)
+    if user is None:
         return Err(
             errors.UserDoesNotExist(
-                f"User {user} does not exist in the repository, therefore cannot be updated"
+                f"User {user} does not exist in the repository, therefore cannot add money"
             )
         )
 
