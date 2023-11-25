@@ -6,11 +6,11 @@ from domain.models.user import User
 
 class UserRepositoryBase(ABC):
     @abstractmethod
-    async def get_all(self) -> Result[list[User]]:
+    async def get_all(self) -> Result[list[User], Exception]:
         pass
 
     @abstractmethod
-    async def get_by_id(self, id: int) -> Result[User]:
+    async def get_by_id(self, id: int) -> Result[User, Exception]:
         """
         Возвращает пользователя по его id
         :param id: id пользователя в telegram
@@ -19,23 +19,23 @@ class UserRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def add_user(self, user: User) -> Result:
+    async def add_user(self, user: User) -> Result[None, Exception]:
         pass
 
     @abstractmethod
-    async def remove_user_by_id(self, id: int) -> Result:
+    async def remove_user_by_id(self, id: int) -> Result[None, Exception]:
         pass
 
     @abstractmethod
-    async def update_user(self, user: User) -> Result:
+    async def update_user(self, user: User) -> Result[None, Exception]:
         pass
 
     @abstractmethod
-    async def update_user_partially(self, id: int, **kwargs) -> Result:
+    async def update_user_partially(self, id: int, **kwargs) -> Result[None, Exception]:
         pass
 
     @abstractmethod
-    async def add_or_update_user(self, user: User) -> Result:
+    async def add_or_update_user(self, user: User) -> Result[None, Exception]:
         pass
 
 
@@ -43,32 +43,32 @@ class InMemoryUserRepository(UserRepositoryBase):
     def __init__(self):
         self.dict: dict[int, User] = {}
 
-    async def get_all(self) -> Result[list[User]]:
+    async def get_all(self) -> Result[list[User], Exception]:
         return Ok(list(self.dict.values()))
 
-    async def get_by_id(self, id: int) -> Result[User]:
+    async def get_by_id(self, id: int) -> Result[User, Exception]:
         if id in self.dict:
             return Ok(self.dict[id])
 
-        return Err(f"User with id {id} does not exist")
+        return Err(KeyError(f"User with id {id} does not exist"))
 
-    async def add_user(self, user: User) -> Result:
+    async def add_user(self, user: User) -> Result[None, Exception]:
         if user.id in self.dict:
-            return Err(f"User with id {user.id} already exists")
+            return Err(KeyError(f"User with id {user.id} already exists"))
 
         self.dict[user.id] = user
         return Ok(None)
 
-    async def remove_user_by_id(self, id: int) -> Result:
+    async def remove_user_by_id(self, id: int) -> Result[None, Exception]:
         if id not in self.dict:
-            return Err(f"User with id {id} does not exist")
+            return Err(KeyError(f"User with id {id} does not exist"))
 
         self.dict.pop(id)
         return Ok(None)
 
-    async def update_user(self, user: User) -> Result:
+    async def update_user(self, user: User) -> Result[None, Exception]:
         if user.id not in self.dict:
-            return Err(f"User with id {user.id} does not exist")
+            return Err(KeyError(f"User with id {user.id} does not exist"))
 
         self.dict[user.id] = user
         return Ok(None)
@@ -76,9 +76,9 @@ class InMemoryUserRepository(UserRepositoryBase):
     async def update_user_partially(self, id: int,
                                     days_left: int = None, whole_budget: float = None,
                                     expense_today: float = None, income_today: float = None
-                                    ) -> Result:
+                                    ) -> Result[None, Exception]:
         if id not in self.dict:
-            return Err(f"User with id {id} does not exist")
+            return Err(KeyError(f"User with id {id} does not exist"))
 
         kwargs = {k: v for k, v in {
             'days_left': days_left,
@@ -90,7 +90,7 @@ class InMemoryUserRepository(UserRepositoryBase):
         self.dict[id] = replace(self.dict[id], **kwargs)
         return Ok(None)
 
-    async def add_or_update_user(self, user: User) -> Result:
+    async def add_or_update_user(self, user: User) -> Result[None, Exception]:
         if user.id not in self.dict:
             await self.add_user(user)
         else:

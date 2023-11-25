@@ -46,11 +46,13 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             income_today=1,
         )
 
-        await repository.add_user(user)
+        add_user_result = await repository.add_user(user)
 
-        found_user = await repository.get_by_id(user.id)
+        found_user_result = await repository.get_by_id(user.id)
 
-        self.assertEqual(user, found_user)
+        self.assertTrue(add_user_result.is_ok)
+        self.assertTrue(found_user_result.is_ok)
+        self.assertEqual(user, found_user_result.ok().value)
 
     async def test_remove_user_by_id(self):
         repository = UserRepository()
@@ -63,12 +65,15 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             income_today=1,
         )
 
-        await repository.add_user(user)
-        await repository.remove_user_by_id(user.id)
+        add_user_result = await repository.add_user(user)
+        remove_user_result = await repository.remove_user_by_id(user.id)
 
-        users = await repository.get_all()
+        users_result = await repository.get_all()
 
-        self.assertNotIn(user, users)
+        self.assertTrue(add_user_result.is_ok)
+        self.assertTrue(remove_user_result.is_ok)
+        self.assertTrue(users_result.is_ok)
+        self.assertNotIn(user, users_result.ok().value)
 
     async def test_update_user(self):
         repository = UserRepository()
@@ -81,7 +86,7 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             income_today=1,
         )
 
-        await repository.add_user(user)
+        add_user_result = await repository.add_user(user)
 
         updated_user: User = User(
             id=user.id,
@@ -91,8 +96,11 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
             income_today=3,
         )
 
-        await repository.update_user(updated_user)
+        update_user_result = await repository.update_user(updated_user)
 
-        found_user = await repository.get_by_id(user.id)
+        find_user_result = await repository.get_by_id(user.id)
 
-        self.assertEqual(found_user, updated_user)
+        self.assertTrue(add_user_result.is_ok)
+        self.assertTrue(update_user_result.is_ok)
+        self.assertTrue(find_user_result.is_ok)
+        self.assertEqual(find_user_result.ok().value, updated_user)

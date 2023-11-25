@@ -20,13 +20,15 @@ async def init(bot):
         if await settings.is_message_settings_change(event):
             return
 
-        user = await state.get().users_repo.get_by_id(sender.id)
+        user_result = await state.get().users_repo.get_by_id(sender.id)
 
-        if user is None:
+        if user_result.is_err:
             await event.respond(
                 "Чтобы использовать бота, зарегистрируйтесь с помощью /start"
             )
             return
+
+        user = user_result.ok().value
 
         try:
             result = eval(event.text, {}, {})
