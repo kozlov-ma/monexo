@@ -5,7 +5,7 @@ from telethon.tl.custom import Message
 from telethon.tl.types import User as TgUser
 
 from domain import User
-from pkg import state
+from app import state
 
 
 async def init(bot):
