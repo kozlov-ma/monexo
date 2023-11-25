@@ -4,10 +4,11 @@ import loguru
 from telethon import events, TelegramClient
 from telethon.tl.custom import Message
 from telethon.tl.types import User as TgUser
-from domain import User
 
+import app.budget
 from app import state
-from plugins import stats
+from domain import User
+from domain.models.budget import DayResults, PeriodEnded
 
 
 async def init(bot: TelegramClient):
@@ -17,9 +18,7 @@ async def init(bot: TelegramClient):
 
         user = await state.get().users_repo.get_by_id(sender.id)
         if user is None:
-            await event.respond(
-                "Сначала введите укажите срок и бюджет с помощью /start"
-            )
+            await event.respond("Сначала зарегистрируйтесь с помощью /start")
             return
 
         await next_day_for(bot, user)
@@ -41,12 +40,39 @@ async def update_users_periodically(bot: TelegramClient, duration_secs: float) -
 async def next_day_for(bot: TelegramClient, user: User) -> None:
     tg_user = TgUser(user.id)
 
-    await stats.send_stats(bot, user)
+    result = await app.budget.apply_today(user)
+    if result.is_err:
+        return
 
-    user = user.apply_today()
-    await state.get().users_repo.update_user(user)
+    match result.unwrap():
+        case PeriodEnded(saved=float(s)):
+            if s <= 1e-3:
+                msg = "Период закончился. Начнём сначала? /start"
+            else:
+                msg = f"Период закончился. Удалось сэкономить **{s}**. Начнём сначала? /start"
+            await bot.send_message(tg_user, msg)
+        case DayResults(
+            income,
+            expense,
+            saved,
+            new_remaining_budget,
+            new_daily_budget,
+            new_days_left,
+        ):
+            msg = "**День Закончился!**\n"
+            if income > 0:
+                msg += f"Доходы за день: **{income}**\n"
+            if expense > 0:
+                msg += f"Расходы за день: **{expense}**\n"
+            if saved > 0:
+                msg += f"Удалось сэкономить: **{saved}**\n"
 
-    # FIXME: не отправлять это сообщение если срок кончился
-    await bot.send_message(
-        tg_user, f"Начался новый день. Бюджет на сегодня: **{user.budget_today}**"
-    )
+            msg += f"Остаток на **{new_days_left}** дней: **{new_remaining_budget}**\n"
+            msg += f"Бюджет на завтра: **{new_daily_budget}**"
+
+            await bot.send_message(tg_user, msg)
+        case _:
+            loguru.logger.error(
+                f"Unknown result type for 'app.budget.apply_today()': {type(result.unwrap())}, result: {result.unwrap()}"
+            )
+            await bot.send_message(tg_user, "Произошла ошибка.")

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
+
 from domain.models.user import User
 
 
@@ -37,10 +38,19 @@ class UserRepositoryBase(ABC):
     async def add_or_update_user(self, user: User) -> None:
         pass
 
+    @abstractmethod
+    async def contains(self, user: User) -> bool:
+        pass
+
 
 class InMemoryUserRepository(UserRepositoryBase):
+    dict: dict[int, User]
+
     def __init__(self):
         self.dict: dict[int, User] = {}
+
+    async def contains(self, user: User) -> bool:
+        return user.id in self.dict
 
     async def get_all(self) -> list[User]:
         return list(self.dict.values())
@@ -69,18 +79,27 @@ class InMemoryUserRepository(UserRepositoryBase):
 
         self.dict[user.id] = user
 
-    async def update_user_partially(self, id: int,
-                                    days_left: int = None, whole_budget: float = None,
-                                    expense_today: float = None, income_today: float = None):
+    async def update_user_partially(
+        self,
+        id: int,
+        days_left: int = None,
+        whole_budget: float = None,
+        expense_today: float = None,
+        income_today: float = None,
+    ):
         if id not in self.dict:
             raise KeyError(f"User with id {id} does not exist")
 
-        kwargs = {k: v for k, v in {
-            'days_left': days_left,
-            'whole_budget': whole_budget,
-            'expense_today': expense_today,
-            'income_today': income_today
-        }.items() if v is not None}
+        kwargs = {
+            k: v
+            for k, v in {
+                "days_left": days_left,
+                "whole_budget": whole_budget,
+                "expense_today": expense_today,
+                "income_today": income_today,
+            }.items()
+            if v is not None
+        }
 
         self.dict[id] = replace(self.dict[id], **kwargs)
 
