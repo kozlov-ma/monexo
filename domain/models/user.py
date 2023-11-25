@@ -16,13 +16,15 @@ class User:
 
     @property
     def daily_budget(self) -> float:
-        new_whole_budget = self.whole_budget - self.expense_today + self.income_today
+        new_whole_budget = self.whole_budget - self.expense_today
 
         return new_whole_budget / self.days_left
 
     @property
     def budget_today(self) -> float:
-        return max(self.daily_budget - self.expense_today, 0)
+        today_budget = self.whole_budget / self.days_left
+
+        return max(today_budget - self.expense_today, 0)
 
     def apply_today(self) -> User:
         """
