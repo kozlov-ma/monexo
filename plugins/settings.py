@@ -6,8 +6,8 @@ from telethon.tl.custom import Message
 from telethon.tl.types import User
 
 import domain
-from pkg import state
-from pkg.state import SettingsConversationState
+from app import state
+from app.state import SettingsConversationState
 
 
 async def is_message_settings_change(event: Message) -> bool:

@@ -1,12 +1,9 @@
-import datetime
-import uuid
-
 from telethon import events
 from telethon.tl.custom import Message
 from telethon.tl.types import User
 
 import domain
-from pkg import state
+from app import state
 
 
 async def init(bot):

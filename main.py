@@ -6,7 +6,7 @@ from telethon import TelegramClient
 
 import plugins
 from domain.repositories.user_repository import UserRepository
-from pkg import state
+from app import state
 
 
 async def main():

@@ -5,7 +5,7 @@ from telethon import events
 from telethon.tl.custom import Message
 from telethon.tl.types import User
 
-from pkg import state
+from app import state
 from plugins import settings
 
 MATH_REGEX = re.compile(r"^\d*([-+/*]\d+(\.\d+)?)*$", re.A)
