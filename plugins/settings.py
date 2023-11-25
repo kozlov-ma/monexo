@@ -56,7 +56,7 @@ async def init(bot):
                 new_user = dataclasses.replace(
                     user, whole_budget=budget, expense_today=0, income_today=0
                 )
-                await state.get().users_repo.insert_user(new_user)
+                await state.get().users_repo.add_or_update_user(new_user)
                 conv_states[sender.id] = SettingsConversationState.WAIT_FOR_DATE
                 await event.respond(f"На сколько дней вы планируете бюджет?")
             except Exception as e:
@@ -69,7 +69,7 @@ async def init(bot):
                 user: domain.User = await state.get().users_repo.get_by_id(sender.id)
                 days = int(event.text)  # TODO добавить проверку на >0
                 user = dataclasses.replace(user, days_left=days)
-                await state.get().users_repo.insert_user(user)
+                await state.get().users_repo.add_or_update_user(user)
                 state.get().conversation_states[
                     sender.id
                 ] = SettingsConversationState.ENDED
