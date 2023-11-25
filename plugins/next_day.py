@@ -15,7 +15,7 @@ async def init(bot: TelegramClient):
     async def next_day(event: Message) -> None:
         sender: TgUser = await event.get_sender()
 
-        user = (await state.get().users_repo.get_by_id(sender.id)).ok().value
+        user = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
         if user is None:
             await event.respond(
                 "Сначала введите укажите срок и бюджет с помощью /start"
@@ -31,12 +31,9 @@ async def update_users_periodically(bot: TelegramClient, duration_secs: float) -
     await asyncio.sleep(duration_secs)
     tasks = []
 
-    users_result = await state.get().users_repo.get_all()
+    users = (await state.get().users_repo.get_all()).unwrap()
 
-    if users_result.is_err:
-        return
-
-    for user in users_result.ok().value:
+    for user in users:
         tasks.append(next_day_for(bot, user))
 
     await asyncio.gather(*tasks)

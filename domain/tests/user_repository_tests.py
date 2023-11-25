@@ -26,14 +26,13 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
         add_user_result_1 = await repository.add_user(user1)
         add_user_result_2 = await repository.add_user(user2)
 
-        result_users = await repository.get_all()
+        users = (await repository.get_all()).unwrap()
 
         self.assertTrue(add_user_result_1.is_ok)
         self.assertTrue(add_user_result_2.is_ok)
-        self.assertTrue(result_users.is_ok)
-        self.assertEqual(len(result_users.ok().value), 2)
-        self.assertIn(user1, result_users.ok().value)
-        self.assertIn(user2, result_users.ok().value)
+        self.assertEqual(len(users), 2)
+        self.assertIn(user1, users)
+        self.assertIn(user2, users)
 
     async def test_get_by_id(self):
         repository = UserRepository()
@@ -48,11 +47,10 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         add_user_result = await repository.add_user(user)
 
-        found_user_result = await repository.get_by_id(user.id)
+        found_user = (await repository.get_by_id(user.id)).unwrap()
 
         self.assertTrue(add_user_result.is_ok)
-        self.assertTrue(found_user_result.is_ok)
-        self.assertEqual(user, found_user_result.ok().value)
+        self.assertEqual(user, found_user)
 
     async def test_remove_user_by_id(self):
         repository = UserRepository()
@@ -68,12 +66,11 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
         add_user_result = await repository.add_user(user)
         remove_user_result = await repository.remove_user_by_id(user.id)
 
-        users_result = await repository.get_all()
+        users = (await repository.get_all()).unwrap()
 
         self.assertTrue(add_user_result.is_ok)
-        self.assertTrue(remove_user_result.is_ok)
-        self.assertTrue(users_result.is_ok)
-        self.assertNotIn(user, users_result.ok().value)
+        self.assertTrue(remove_user_result.is_some)
+        self.assertNotIn(user, users)
 
     async def test_update_user(self):
         repository = UserRepository()
@@ -98,9 +95,8 @@ class UserRepositoryTests(IsolatedAsyncioTestCase):
 
         update_user_result = await repository.update_user(updated_user)
 
-        find_user_result = await repository.get_by_id(user.id)
+        found_user = (await repository.get_by_id(user.id)).unwrap()
 
         self.assertTrue(add_user_result.is_ok)
         self.assertTrue(update_user_result.is_ok)
-        self.assertTrue(find_user_result.is_ok)
-        self.assertEqual(find_user_result.ok().value, updated_user)
+        self.assertEqual(found_user, updated_user)

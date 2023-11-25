@@ -1,16 +1,16 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from option import Result, Ok, Err
+from option import Option, Result, Ok, Err
 from domain.models.user import User
 
 
 class UserRepositoryBase(ABC):
     @abstractmethod
-    async def get_all(self) -> Result[list[User], Exception]:
+    async def get_all(self) -> Option[list[User]]:
         pass
 
     @abstractmethod
-    async def get_by_id(self, id: int) -> Result[User, Exception]:
+    async def get_by_id(self, id: int) -> Option[User]:
         """
         Возвращает пользователя по его id
         :param id: id пользователя в telegram
@@ -23,7 +23,7 @@ class UserRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def remove_user_by_id(self, id: int) -> Result[None, Exception]:
+    async def remove_user_by_id(self, id: int) -> Option[User]:
         pass
 
     @abstractmethod
@@ -43,14 +43,14 @@ class InMemoryUserRepository(UserRepositoryBase):
     def __init__(self):
         self.dict: dict[int, User] = {}
 
-    async def get_all(self) -> Result[list[User], Exception]:
-        return Ok(list(self.dict.values()))
+    async def get_all(self) -> Option[list[User]]:
+        return Option.Some(list(self.dict.values()))
 
-    async def get_by_id(self, id: int) -> Result[User, Exception]:
+    async def get_by_id(self, id: int) -> Option[User]:
         if id in self.dict:
-            return Ok(self.dict[id])
+            return Option.Some(self.dict[id])
 
-        return Err(KeyError(f"User with id {id} does not exist"))
+        return Option.NONE()
 
     async def add_user(self, user: User) -> Result[None, Exception]:
         if user.id in self.dict:
@@ -59,12 +59,11 @@ class InMemoryUserRepository(UserRepositoryBase):
         self.dict[user.id] = user
         return Ok(None)
 
-    async def remove_user_by_id(self, id: int) -> Result[None, Exception]:
+    async def remove_user_by_id(self, id: int) -> Option[User]:
         if id not in self.dict:
-            return Err(KeyError(f"User with id {id} does not exist"))
+            return Option.NONE()
 
-        self.dict.pop(id)
-        return Ok(None)
+        return Option.Some(self.dict.pop(id))
 
     async def update_user(self, user: User) -> Result[None, Exception]:
         if user.id not in self.dict:
