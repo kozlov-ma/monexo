@@ -4,7 +4,7 @@ from os import getenv
 from dotenv import load_dotenv
 from telethon import TelegramClient
 
-import plugins
+import bot
 from domain.repositories.user_repository import UserRepository
 from app import state
 
@@ -21,7 +21,7 @@ async def main():
     await bot.start(bot_token=getenv("BOT_TOKEN"))
 
     try:
-        await plugins.init(bot)
+        await bot.init(bot)
         await bot.run_until_disconnected()
     finally:
         await bot.disconnect()
