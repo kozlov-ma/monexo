@@ -22,7 +22,7 @@ async def init(bot):
             return
 
         try:
-            result = eval(event.text)
+            result = eval(event.text.replace("_", ""))
         except Exception as e:
             await event.respond(
                 f"Выражение **{event.text}** содержит ошибку и не может быть вычислено"
