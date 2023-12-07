@@ -25,7 +25,7 @@ async def init(bot: TelegramClient):
 
         await next_day_for(bot, user)
 
-    asyncio.create_task(update_users_periodically(bot, 24 * 60 * 60))
+    await asyncio.create_task(update_users_periodically(bot, 24 * 60 * 60))
 
 
 async def update_users_periodically(bot: TelegramClient, duration_secs: float) -> None:
