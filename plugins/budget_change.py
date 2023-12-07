@@ -9,8 +9,8 @@ from app.budget import add_income, add_expense
 from domain.models.budget import Spent, SpentOverDailyBudget, SpentAllBudget
 from plugins import settings
 
-MATH_REGEX = re.compile(r"^\d*([-+/*]\d+(\.\d+)?)*$", re.A)
-SINGLE_OPERAND_REGEX = re.compile(f"[+\-][1-9]\d+(\.\d+)?$", re.A)
+MATH_REGEX = re.compile(r"^\d*\.?([-+/*]\d+(\.\d+)?)*$", re.A)
+SINGLE_OPERAND_REGEX = re.compile(f"[+\-][1-9]\.?\d+(\.\d+)?$", re.A)
 
 
 async def init(bot):

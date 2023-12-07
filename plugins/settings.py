@@ -34,7 +34,7 @@ async def init(bot):
 
         state.get().conversation_states[sender.id] = SettingsConversationState.STARTED
 
-        await event.respond(f"Отлично! Введите сумму, которую хотите потратить:")
+        await event.respond(f"Введите сумму, которую хотите потратить:")
 
     @bot.on(events.NewMessage(func=is_message_settings_change))
     async def set_settings(event: Message) -> None:
@@ -52,7 +52,9 @@ async def init(bot):
         if conv_state == SettingsConversationState.WAIT_FOR_SUM:
             try:
                 budget = eval(event.text, {}, {})  # TODO проверка на >0
-                user: domain.User = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
+                user: domain.User = (
+                    await state.get().users_repo.get_by_id(sender.id)
+                ).unwrap_or(None)
                 new_user = dataclasses.replace(
                     user, remaining_budget=budget, expense_today=0, income_today=0
                 )
@@ -66,7 +68,9 @@ async def init(bot):
                 )
         elif conv_state == SettingsConversationState.WAIT_FOR_DATE:
             try:
-                user: domain.User = (await state.get().users_repo.get_by_id(sender.id)).unwrap_or(None)
+                user: domain.User = (
+                    await state.get().users_repo.get_by_id(sender.id)
+                ).unwrap_or(None)
                 days = int(event.text)  # TODO добавить проверку на >0
                 user = dataclasses.replace(
                     user,
