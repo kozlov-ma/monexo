@@ -25,7 +25,9 @@ async def main() -> None:
     with open("admins", "r") as f:
         admins = [name.strip() for name in f.readlines()]
 
-    app.state.init(admin_usernames=admins, users_repo=domain.UserRepository())
+    await domain.init_db("postgresql+asyncpg://postgres:exomonexomon@172.17.0.2/postgres")
+
+    app.state.init(admin_usernames=admins, users_repo=domain.user_repository())
 
     # Dispatcher is a root router
     dp = Dispatcher()
