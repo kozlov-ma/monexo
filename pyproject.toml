@@ -9,7 +9,6 @@ readme = "README.md"
 python = "^3.12"
 
 python-dotenv = "^1.0.0"
-telethon = "^1.32.0"
 loguru = "^0.7.2"
 option = "^2.1.0"
 pytest = "^7.4.3"
