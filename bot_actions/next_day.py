@@ -8,9 +8,7 @@ from telethon.tl.types import User as TgUser
 import app.budget
 from app import state
 from domain import User
-from domain.models.budget import DayResults, PeriodEnded
-
-from option import Result
+from app.api_types import DayResults, PeriodEnded
 
 
 async def init(bot: TelegramClient):
