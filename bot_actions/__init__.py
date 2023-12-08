@@ -22,10 +22,10 @@ async def init(bot):
         and not file.startswith("!example")
     ]
 
-    # Keep a mapping of module name to module for easy access inside the plugins
+    # Keep a mapping of module name to module for easy access inside the bot_actions
     modules = {m.__name__.split(".")[-1]: m for m in plugins}
 
-    # All kwargs provided to get_init_args are those that plugins may access
+    # All kwargs provided to get_init_args are those that bot_actions may access
     to_init = (get_init_coro(plugin, bot=bot, modules=modules) for plugin in plugins)
 
     # Plugins may not have a valid init so those need to be filtered out

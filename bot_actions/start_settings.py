@@ -28,6 +28,15 @@ async def is_message_settings_change(event: Message) -> bool:
 
 
 async def init(bot):
+    @bot.on(events.NewMessage(pattern="/start"))
+    async def start(event: Message) -> None:
+        sender: User = await event.get_sender()
+        user = domain.User(sender.id, 1)
+
+        await state.get().users_repo.add_user(user)
+
+        await event.respond(f"Вы успешно зарегистрированы. Данные: {user}")
+
     @bot.on(events.NewMessage(pattern="/settings"))
     async def settings(event: Message) -> None:
         sender: User = await event.get_sender()
@@ -77,7 +86,7 @@ async def init(bot):
                     days_left=days,
                     budget_today=user.remaining_budget / days,
                     remaining_budget=user.remaining_budget
-                    - user.remaining_budget / days,
+                                     - user.remaining_budget / days,
                 )
                 await state.get().users_repo.add_or_update_user(user)
                 state.get().conversation_states[

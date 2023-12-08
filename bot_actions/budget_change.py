@@ -7,7 +7,7 @@ from telethon.tl.types import User
 
 from app.budget import add_income, add_expense
 from domain.models.budget import Spent, SpentOverDailyBudget, SpentAllBudget
-from plugins import settings
+from bot_actions import start_settings
 
 MATH_REGEX = re.compile(r"^[+\-\d]([-+/*]?[._\d]+(\._\d+)?)*$", re.A)
 SINGLE_OPERAND_REGEX = re.compile(f"^[+\-]([-+/*]?[._\d]+(\._\d+)?)*$", re.A)
@@ -18,7 +18,7 @@ async def init(bot):
     async def budget_change(event: Message) -> None:
         sender: User = await event.get_sender()
 
-        if await settings.is_message_settings_change(event):
+        if await start_settings.is_message_settings_change(event):
             return
 
         try:
