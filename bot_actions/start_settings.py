@@ -8,6 +8,7 @@ from telethon.tl.types import User
 import domain
 from app import state
 from app.state import SettingsConversationState
+from bot_actions.help import send_help
 
 
 async def is_message_settings_change(event: Message) -> bool:
@@ -35,7 +36,8 @@ async def init(bot):
 
         await state.get().users_repo.add_user(user)
 
-        await event.respond(f"Вы успешно зарегистрированы. Данные: {user}")
+        await event.respond(f"Вы успешно зарегистрированы.")
+        await send_help(event)
 
     @bot.on(events.NewMessage(pattern="/settings"))
     async def settings(event: Message) -> None:
