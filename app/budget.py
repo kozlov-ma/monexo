@@ -34,7 +34,14 @@ async def add_expense(
     else:
         left_whole = user.remaining_budget - abs(left_for_today)
         if left_whole <= 0:
-            await state.get().users_repo.remove_user_by_id(user.id)  # FIXME result
+            user = replace(
+                user,
+                budget_today=0,
+                expense_today=user.expense_today + amount,
+                remaining_budget=0
+            )
+
+            await state.get().users_repo.update_user(user)  # FIXME result
             return Ok(SpentAllBudget(amount))
 
         user = replace(
