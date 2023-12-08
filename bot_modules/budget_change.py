@@ -13,8 +13,8 @@ import app.state
 
 budget_change_router = Router()
 
-MATH_REGEX = re.compile(r"^[+\-\d]([-+/*]?[._\d]+(\._\d+)?)*$", re.A)
-SINGLE_OPERAND_REGEX = re.compile(f"^[+\-]([-+/*]?[._\d]+(\._\d+)?)*$", re.A)
+MATH_REGEX = re.compile(r"^[+\-\d](\s?[-+/*]?\s?[._\d]+\s?(\._\d+)?)*$", re.A)
+SINGLE_OPERAND_REGEX = re.compile(f"^[+\-]\d+$", re.A)
 
 
 @budget_change_router.message(F.text.regexp(MATH_REGEX))
