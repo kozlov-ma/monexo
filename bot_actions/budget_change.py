@@ -6,7 +6,7 @@ from telethon.tl.custom import Message
 from telethon.tl.types import User
 
 from app.budget import add_income, add_expense
-from domain.models.budget import Spent, SpentOverDailyBudget, SpentAllBudget
+from app.api_types import Spent, SpentOverDailyBudget, SpentAllBudget
 from bot_actions import start_settings
 
 MATH_REGEX = re.compile(r"^[+\-\d]([-+/*]?[._\d]+(\._\d+)?)*$", re.A)

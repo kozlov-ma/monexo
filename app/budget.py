@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 from app import state
-from domain.models.budget import (
+from app.api_types import (
     Spent,
     Added,
     SpentOverDailyBudget,
