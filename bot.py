@@ -14,6 +14,8 @@ from bot_modules.next_day import next_day_router
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 
+from bot_modules.stats import stats_router
+
 # Bot token can be obtained via https://t.me/BotFather
 load_dotenv(".env")
 TOKEN = getenv("BOT_TOKEN")
@@ -32,7 +34,8 @@ async def main() -> None:
         start_router,
         settings_router,
         budget_change_router,
-        next_day_router
+        next_day_router,
+        stats_router
     )
 
     # Initialize Bot instance with a default parse mode which will be passed to all API calls

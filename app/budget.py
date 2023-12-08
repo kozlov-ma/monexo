@@ -14,7 +14,7 @@ from app import errors
 
 
 async def add_expense(
-    user_id: int, amount: float
+        user_id: int, amount: float
 ) -> Result[Spent | SpentOverDailyBudget | SpentAllBudget, errors.UserDoesNotExist]:
     user = (await state.get().users_repo.get_by_id(user_id)).unwrap_or(None)
     if user is None:
@@ -51,7 +51,7 @@ async def add_expense(
 
 
 async def add_income(
-    user_id: int, amount: float
+        user_id: int, amount: float
 ) -> Result[Added, errors.UserDoesNotExist]:
     user = (await state.get().users_repo.get_by_id(user_id)).unwrap_or(None)
     if user is None:
@@ -73,7 +73,7 @@ async def add_income(
 
 
 async def apply_today(
-    user_id: int,
+        user_id: int,
 ) -> Result[DayResults | PeriodEnded, errors.UserDoesNotExist]:
     user = (await state.get().users_repo.get_by_id(user_id)).unwrap_or(None)
     if user is None:
@@ -109,5 +109,28 @@ async def apply_today(
     return Ok(
         DayResults(
             income, expense, saved, new_remaining_budget, new_day_budget, new_days_left
+        )
+    )
+
+
+async def stats(user_id: int) -> Result[DayResults, errors.UserDoesNotExist]:
+    user = (await state.get().users_repo.get_by_id(user_id)).unwrap_or(None)
+    if user is None:
+        return Err(
+            errors.UserDoesNotExist(
+                f"User {user} does not exist in the repository, therefore cannot add money"
+            )
+        )
+
+    income = user.income_today
+    expense = user.expense_today
+    saved = user.budget_today
+
+    new_remaining_budget = user.remaining_budget + saved
+    new_day_budget = new_remaining_budget / (user.days_left - 1) if user.days_left > 1 else user.remaining_budget
+
+    return Ok(
+        DayResults(
+            income, expense, saved, new_remaining_budget, new_day_budget, user.days_left
         )
     )
