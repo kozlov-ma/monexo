@@ -74,7 +74,8 @@ class InMemoryUserRepository(UserRepositoryBase):
 
     async def update_user_partially(self, id: int,
                                     days_left: int = None, whole_budget: float = None,
-                                    expense_today: float = None, income_today: float = None
+                                    expense_today: float = None, income_today: float = None, 
+                                    auto_update: bool = None
                                     ) -> Result[None, Exception]:
         if id not in self.dict:
             return Err(KeyError(f"User with id {id} does not exist"))
@@ -83,7 +84,8 @@ class InMemoryUserRepository(UserRepositoryBase):
             'days_left': days_left,
             'whole_budget': whole_budget,
             'expense_today': expense_today,
-            'income_today': income_today
+            'income_today': income_today,
+            'auto_update': auto_update
         }.items() if v is not None}
 
         self.dict[id] = replace(self.dict[id], **kwargs)

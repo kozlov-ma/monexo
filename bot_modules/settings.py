@@ -14,12 +14,27 @@ settings_router = Router()
 class SettingsForm(StatesGroup):
     budget = State()
     days_left = State()
+    time_zone_msk = State()
+    auto_update = State()
+
 
 
 @settings_router.message(Command("settings"))
 async def command_settings(message: Message, state: FSMContext) -> None:
-    await state.set_state(SettingsForm.budget)
-    await message.answer(text.ask_for_budget(), reply_markup=ReplyKeyboardRemove(), )
+    await state.set_state(SettingsForm.time_zone_msk)
+    await message.answer(text.ask_for_timezone(), reply_markup=ReplyKeyboardRemove(), )
+
+
+
+@settings_router.message(SettingsForm.time_zone_msk)
+async def process_timezone_from_msk(message: Message, state: FSMContext) -> None:
+    try:
+        timezone = int(message.text)
+        await state.update_data(time_zone_msk=timezone)
+        await state.set_state(SettingsForm.budget)
+        await message.answer(text.ask_for_budget())
+    except:
+        message.answer(text.timezone_must_be_integer())
 
 
 @settings_router.message(SettingsForm.budget)
@@ -36,6 +51,8 @@ async def process_budget(message: Message, state: FSMContext) -> None:
         await message.answer(text.ask_for_days_left())
     except ValueError:
         await message.answer(text.budget_must_be_float())
+
+
 
 
 @settings_router.message(SettingsForm.days_left)
@@ -60,3 +77,4 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
         await message.answer(text.settings_saved(budget=data["budget"], days_left=data["days_left"]))
     except ValueError:
         await message.answer(text.days_left_must_be_int())
+

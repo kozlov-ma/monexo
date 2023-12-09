@@ -5,6 +5,17 @@ def format_float(f: float) -> str:
     return format(f, ",.2f").replace(",", " ").replace(".00", "")
 
 
+
+
+def timezone_must_be_integer() -> str:
+    return "Отклонение часового пояса по московскому времени должно быть целым числом"
+
+def ask_for_timezone() -> str:
+    return "Введите свой часовой пояс относительно Московской области. Например, для Свердловской области нужно будет ввести число <b>2</b>, а для Калининградской <b>-1</b>"
+
+
+
+
 def arithmetic_error(expr: str) -> str:
     return f"Выражение <b>{expr}</b> содержит ошибку и не может быть вычислено"
 

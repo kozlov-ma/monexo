@@ -15,3 +15,6 @@ class User:
 
     expense_today: float = 0
     income_today: float = 0
+
+    time_zone_msk: int = 0
+    auto_update: bool = True

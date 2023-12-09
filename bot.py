@@ -16,14 +16,33 @@ from aiogram.enums import ParseMode
 
 from bot_modules.stats import stats_router
 
+import schedule
+from datetime import datetime
+from pytz import timezone
+
 # Bot token can be obtained via https://t.me/BotFather
 load_dotenv(".env")
 TOKEN = getenv("BOT_TOKEN")
 
 
+async def schedule_cycle():
+    while True:
+        await schedule.run_pending()
+
+
+async def update_group_of_users():
+    for user in domain.user_repository.get_all():
+        if datetime.now(timezone('Europe/Moscow')).hour + user.time_zone_msk() % 24 == 0 and user.auto_update(): #ПРОВЕРИТЬ FIXME
+            next_day_router._next_day(user.id) #FIXME проверить метод next_day_to
+
+
 async def main() -> None:
     with open("admins", "r") as f:
         admins = [name.strip() for name in f.readlines()]
+
+
+
+    schedule.every().hour.at(":00").do()
 
     app.state.init(admin_usernames=admins, users_repo=domain.UserRepository())
 
@@ -43,6 +62,7 @@ async def main() -> None:
     # And the run events dispatching
     await dp.start_polling(bot)
 
+    await schedule_cycle()
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

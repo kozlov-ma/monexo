@@ -16,6 +16,9 @@ next_day_router = Router()
 @next_day_router.message(Command("nextday"))
 async def command_next_day(message: Message) -> None:
     sender = message.from_user.id
+    
+    app.state.update_user_partially(id=sender, auto_update=False)
+    
     msg = await _next_day(sender)
     if msg.is_some:
         await message.answer(msg.unwrap())
