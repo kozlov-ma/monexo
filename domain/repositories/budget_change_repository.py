@@ -33,9 +33,6 @@ class BudgetChangeRepositoryBase(ABC):
     async def remove_category_by_id(self, category_id: int) -> Option[Category]:
         pass
 
-    @abstractmethod
-    async def add_or_update_category(self, category: Category) -> Result[None, Exception]:
-        pass
 
     @abstractmethod
     async def get_all_budget_changes(self) -> Option[list[BudgetChange]]:
@@ -51,11 +48,7 @@ class BudgetChangeRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def remove_budget_change(self, budget_change_id: int) -> Result[BudgetChange]:
-        pass
-
-    @abstractmethod
-    async def add_or_update_budget_change(self, budget_change: BudgetChange) -> Result[None, Exception]:
+    async def remove_budget_change_by_id(self, budget_change_id: int) -> Option[BudgetChange]:
         pass
 
 
@@ -151,7 +144,7 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
         await self.session.commit()
         return Ok(None)
 
-    async def remove_budget_change(self, budget_change_id: int) -> Result[BudgetChange]:
+    async def remove_budget_change_by_id(self, budget_change_id: int) -> Option[BudgetChange]:
         statement = (select(DbBudgetChange)
                      .where(DbBudgetChange.id == budget_change_id))
 
