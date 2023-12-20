@@ -131,6 +131,17 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
 
         return list(budget_change.to_budget_change() for budget_change in budget_changes)
 
+    async def get_budget_changes_by_message_id(self, message_id: int) -> Option[BudgetChange]:
+        statement = (select(DbBudgetChange)
+                     .where(DbBudgetChange.message_telegram_id == message_id))
+
+        budget_change = await self.session.scalar(statement)
+
+        if budget_change is None:
+            return Option.NONE()
+
+        return Option.Some(budget_change.to_budget_change())
+
     async def add_budget_change(self, budget_change: BudgetChange) -> Result[None, Exception]:
         statement = (select(DbBudgetChange)
                      .where(DbBudgetChange.id == budget_change.id))
