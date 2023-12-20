@@ -4,7 +4,7 @@ import typing
 from dataclasses import dataclass, replace
 
 from sqlalchemy import Float, Integer, ForeignKey, String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column, N
+from sqlalchemy.orm import Mapped, mapped_column
 
 from domain.models.db_base import Base
 

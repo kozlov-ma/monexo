@@ -33,7 +33,6 @@ class BudgetChangeRepositoryBase(ABC):
     async def remove_category_by_id(self, category_id: int) -> Option[Category]:
         pass
 
-
     @abstractmethod
     async def get_all_budget_changes(self) -> list[BudgetChange]:
         pass
@@ -41,6 +40,10 @@ class BudgetChangeRepositoryBase(ABC):
     @abstractmethod
     async def get_budget_changes_by_telegram_id(self, telegram_id: int, category_id: int = None
                                                 ) -> list[BudgetChange]:
+        pass
+
+    @abstractmethod
+    async def get_budget_changes_by_message_id(self, message_id: int) -> Option[BudgetChange]:
         pass
 
     @abstractmethod

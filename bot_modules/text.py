@@ -1,5 +1,8 @@
+from collections import defaultdict
 from typing import Iterable
 
+import app
+import domain
 from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults
 
 
@@ -91,7 +94,9 @@ def period_ended(saved: float) -> str:
         return f"Успех ! Период закончился и удалось сэкономить <b>{format_float(saved)}</b>! Начнём сначала? /settings"
 
 
-def stats(day_res: DayResults) -> str:
+async def stats(day_res: DayResults, budget_changes: Iterable[domain.BudgetChange]) -> str: #FIXME BUDGETCHANGE
+    budget_changes = list(budget_changes)
+
     msg = "<b>Статистика на день:</b>\n"
     if day_res.income > 0:
         msg += f"Доходы за сегодня: <b>{format_float(day_res.income)}</b>\n"
@@ -101,6 +106,19 @@ def stats(day_res: DayResults) -> str:
     msg += f"Остаток на сегодня: <b>{format_float(day_res.saved)}</b>\n"
     msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget)}</b>\n"
     msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
+
+    if len(budget_changes) > 0:
+        msg += "\n\n<b>Расходы по категориям:</b>\n"
+
+    categories = defaultdict(float)
+    for bc in budget_changes: #FIXME BUDGETCHANGE
+        category = (await app.state.get().bc_repo.get_category_by_id(bc.category_id)).unwrap_or(None)
+        if category is None:
+            continue
+        categories[category] += bc.value
+
+    for cat, value in sorted(categories.items(), key=lambda i: i[1], reverse=True):
+        msg += f"  - <b>{format_float(value)}</b> - {cat.name}\n" #FIXME BUDGETCHANGE
 
     return msg
 
@@ -153,7 +171,7 @@ def categories_msg(categories: Iterable[str]) -> str:
 
 def ask_for_categories() -> str:
     return ("<b>Редактирование категорий</b>\nВведите названия <b>всех</b> категорий, каждое с новой строки, "
-            "например:\n\nЕда\nТранспорт\nРазвлечения")
+            "например:\n\nЕда\nТранспорт\nРазвлечения\n\nЕсли хотите удалить все категории, введите '_'")
 
 
 def categories_set(created: Iterable[str], removed: Iterable[str], unchanged: Iterable[str]) -> str:
@@ -174,6 +192,15 @@ def categories_set(created: Iterable[str], removed: Iterable[str], unchanged: It
         msg = "<b>Список категорий очищен.</b>"
 
     return msg
+
+
+def too_many_categories() -> str:
+    return ("<b>Предупреждение:</b> <i>большое количество категорий может сделать использование бота страшным и "
+            "неудобным!</i>")
+
+
+def underscore_in_category_name() -> str:
+    return "<b>Название категории не должно содержать символ '_'.</b> Введите категории заново:"
 
 
 def test_format():

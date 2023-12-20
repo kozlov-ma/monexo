@@ -15,4 +15,5 @@ async def command_stats(message: Message) -> None:
     if stats is None:
         await message.answer(text.must_have_settings_first())
     else:
-        await message.answer(text.stats(stats))
+        budget_changes = await app.state.get().bc_repo.get_budget_changes_by_telegram_id(sender) #  FIXME BUDGETCHANGE
+        await message.answer(await text.stats(stats, budget_changes)) #FIXME BUDGETCHANGE

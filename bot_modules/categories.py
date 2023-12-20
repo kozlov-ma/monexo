@@ -37,8 +37,20 @@ async def change_categories(callback_query: CallbackQuery, state: FSMContext):
 @categories_router.message(CategoriesForm.categories)
 async def process_categories(message: Message, state: FSMContext) -> None:
     try:
-        new_categories = set(message.text.split("\n"))
         old_categories = await app.state.get().bc_repo.get_all_categories()
+
+        if message.text == "_":
+            for c in old_categories:
+                await app.state.get().bc_repo.remove_category_by_id(c.id)
+            await message.answer(text.no_categories_msg(), reply_markup=kb.change_categories(), parse_mode="HTML")
+            await state.clear()
+            return
+
+        new_categories = {c_name.strip() for c_name in message.text.split("\n")}
+        if any("_" in c for c in new_categories):
+            await message.answer(text.underscore_in_category_name())
+            return
+
         old_names = {c.name for c in old_categories}
         created_names = {c for c in new_categories if c not in old_names}
         deleted = {c for c in old_categories if c.name not in new_categories}
@@ -48,11 +60,15 @@ async def process_categories(message: Message, state: FSMContext) -> None:
             await app.state.get().bc_repo.remove_category_by_id(c.id)
 
         for c_name in created_names:
-            new_cat = Category(uuid.uuid4().int % 2**31, message.from_user.id, c_name)  # FIXME Саня сделай получение id
+            new_cat = Category(uuid.uuid4().int % 2 ** 31, message.from_user.id,
+                               c_name)  # FIXME Саня сделай получение id
             await app.state.get().bc_repo.add_category(new_cat)
 
         await state.clear()
-        await message.answer(text.categories_set(created_names, (c.name for c in deleted), (c.name for c in unchanged)), reply_markup=kb.change_categories(),
-                             parse_mode="HTML")
+        if len(new_categories) >= 7:
+            await message.answer(text.too_many_categories(), reply_markup=kb.change_categories(), parse_mode="HTML")
+
+        await message.answer(text.categories_set(created_names, (c.name for c in deleted), (c.name for c in unchanged)),
+                             reply_markup=kb.change_categories(), parse_mode="HTML")
     except ValueError:
         await message.answer(text.ask_for_categories())
