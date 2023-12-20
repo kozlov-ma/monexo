@@ -1,4 +1,5 @@
 from domain.models.user import User
+from domain.models.user_timezone_info import UserTimezoneInfo
 from domain.repositories.user_repository import UserRepository
 from domain.models.db_base import Base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -12,6 +13,7 @@ __budget_change_repository = None
 
 async def init_db(db_url: str) -> None:
     global __user_repository
+    global __user_timezone_info_repository
 
     engine = create_async_engine(db_url, echo=True, query_cache_size=0)
 
@@ -29,7 +31,7 @@ def user_repository() -> UserRepository | None:
 
 
 def user_timezone_info_repository() -> UserTimezoneInfoRepository | None:
-    return __user_repository
+    return __user_timezone_info_repository
 
 
 def budget_change_repository() -> BudgetChangeRepository | None:

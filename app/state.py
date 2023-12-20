@@ -5,6 +5,7 @@ from functools import cache
 
 from domain.models.user import User
 from domain.repositories.user_repository import UserRepositoryBase
+from domain.repositories.user_timezone_info_repository import UserTimezoneInfoRepositoryBase
 
 
 class SettingsConversationState(enum.Enum):
@@ -18,6 +19,7 @@ class SettingsConversationState(enum.Enum):
 class ApplicationState:
     admin_usernames: list[str] = None
     users_repo: UserRepositoryBase = None
+    timezone_users_repo: UserTimezoneInfoRepositoryBase = None
     conversation_states: dict[int, SettingsConversationState] = None
 
 

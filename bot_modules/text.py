@@ -77,9 +77,24 @@ def days_left_must_be_int() -> str:
     return f"Количество дней должно быть положительным целым числом, например <b>5</b>"
 
 
-def settings_saved(budget: float, days_left: int) -> str:
-    return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней,"
+def ask_for_timezone() -> str:
+    return f"Введите Ваш часовой пояс по Московскому времени. Например, для Свердловской области он будет <b>2</b>, а для Калининградской области -- <b>-1</b> или <b>23</b>"
+
+
+def timezone_must_be_integer() -> str:
+    return f"Часовой пояс должен быть целым числом и не может превосходить 24 по модулю."
+
+
+def settings_saved(autoupdate: bool, timezone: int, budget: float, days_left: int) -> str:
+    return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней, ваш часовой пояс -- Msk {'' if timezone != 0 else ('+' if timezone > 0 else '-')}{timezone}. Ежедневное автообновление включено."
             f" бюджет на день: <b>{format_float(budget / days_left)}</b>")
+
+def autoupdate_enabled() -> str:
+    return f"Автообновление включено"
+
+def autoupdate_disabled() -> str:
+    return f"Автообновление выключено"
+
 
 
 def period_ended(saved: float) -> str:

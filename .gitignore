@@ -2,3 +2,4 @@
 .idea
 *.session
 *.session-journal
+__pycache__
