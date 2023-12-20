@@ -16,9 +16,9 @@ class DbUserTimezoneInfo(Base):
     __tablename__ = "users_timezone_info"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_telegram_id: Mapped[int] = mapped_column(ForeignKey('users.telegram_id'))
+    user_telegram_id: Mapped[int] = mapped_column(Integer)
     timezone: Mapped[int] = mapped_column(Integer)
-    is_updatable: bool = mapped_column(Boolean)
+    is_updatable: Mapped[bool] = mapped_column(Boolean)
 
     def to_timezone(self) -> UserTimezoneInfo:
         return UserTimezoneInfo(self.user_telegram_id, self.timezone, self.is_updatable)

@@ -22,7 +22,7 @@ class DbCategory(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    user_telegram_id: Mapped[int] = mapped_column(ForeignKey("users.telegram_id"))
+    user_telegram_id: Mapped[int] = mapped_column(Integer)
     name: Mapped[str] = mapped_column(String)
 
     def to_category(self) -> Category:
