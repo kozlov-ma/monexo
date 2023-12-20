@@ -52,7 +52,7 @@ class InMemoryUserRepository(UserRepositoryBase):
 
         self.dict: dict[int, User] = {}
 
-    async def get_all(self) -> Option[list[User]]:
+    async def get_all(self) -> list[User]:
         return Option.Some(list(self.dict.values()))
 
     async def get_by_id(self, id: int) -> Option[User]:
@@ -111,10 +111,10 @@ class PostgresUserRepository(UserRepositoryBase):
         super().__init__()
         self.session: AsyncSession = session
 
-    async def get_all(self) -> Option[list[User]]:
+    async def get_all(self) -> list[User]:
         statement = select(DbUser)
 
-        return Option.Some(list(await self.session.scalars(statement)))
+        return list(user.to_user() for user in await self.session.scalars(statement))
 
     async def get_by_id(self, id: int) -> Option[User]:
         statement = (select(DbUser)
