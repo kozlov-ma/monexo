@@ -25,8 +25,8 @@ class DbBudgetChange(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    user_telegram_id: Mapped[int] = mapped_column(ForeignKey("users.telegram_id"))
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.category_id"))
+    user_telegram_id: Mapped[int] = mapped_column(Integer)
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
 
     value: Mapped[float] = mapped_column(Float)
     is_income: Mapped[bool] = mapped_column(Boolean)
