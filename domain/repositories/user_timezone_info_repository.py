@@ -13,7 +13,7 @@ class UserTimezoneInfoRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def get_all(self) -> Option[list[UserTimezoneInfo]]:
+    async def get_all(self) -> list[UserTimezoneInfo]:
         pass
 
     @abstractmethod
@@ -46,10 +46,9 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
         super().__init__()
         self.session: AsyncSession = session
 
-    async def get_all(self) -> Option[list[UserTimezoneInfo]]:
+    async def get_all(self) -> list[UserTimezoneInfo]:
         statement = select(DbUserTimezoneInfo)
-
-        return Option.Some(list(await self.session.scalars(statement)))
+        return list(user_timezone_info.to_timezone() for user_timezone_info in await self.session.scalars(statement))
 
     async def get_by_id(self, id: int) -> Option[UserTimezoneInfo]:
         statement = (select(DbUserTimezoneInfo)
