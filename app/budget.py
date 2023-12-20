@@ -109,6 +109,7 @@ async def apply_today(
         expense_today=0,
         remaining_budget=new_remaining_budget,
         budget_today=new_day_budget,
+        days_left=new_days_left
     )
 
     await state.get().users_repo.update_user(user)  # FIXME result

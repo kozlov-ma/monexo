@@ -19,13 +19,16 @@ from bot_modules.stats import stats_router
 # Bot token can be obtained via https://t.me/BotFather
 load_dotenv(".env")
 TOKEN = getenv("BOT_TOKEN")
+POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")
 
 
 async def main() -> None:
     with open("admins", "r") as f:
         admins = [name.strip() for name in f.readlines()]
 
-    app.state.init(admin_usernames=admins, users_repo=domain.UserRepository())
+    await domain.init_db(f"postgresql+asyncpg://postgres:{POSTGRES_PASSWORD}@db/postgres")
+
+    app.state.init(admin_usernames=admins, users_repo=domain.user_repository())
 
     # Dispatcher is a root router
     dp = Dispatcher()
