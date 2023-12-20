@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults
 
 
@@ -139,6 +141,39 @@ def help_msg() -> str:
     - Если вы считаете, что новые траты относятся к следующему дню, используйте /nextday
     - Это сообщение можно показать ещё раз с помощью /help
 """
+
+
+def no_categories_msg() -> str:
+    return "<b>Список категорий пуст.</b>"
+
+
+def categories_msg(categories: Iterable[str]) -> str:
+    return f"<b>Пользовательские категории</b>:\n" + "\n".join(categories)
+
+
+def ask_for_categories() -> str:
+    return ("<b>Редактирование категорий</b>\nВведите названия <b>всех</b> категорий, каждое с новой строки, "
+            "например:\n\nЕда\nТранспорт\nРазвлечения")
+
+
+def categories_set(created: Iterable[str], removed: Iterable[str], unchanged: Iterable[str]) -> str:
+    msg = ""
+    created = list(created)
+    removed = list(removed)
+    unchanged = list(unchanged)
+    if len(created) > 0:
+        msg += f"<b>Добавлены следующие категории</b>:\n" + "\n".join("  + " + c for c in created) + "\n"
+    if len(removed) > 0:
+        msg += "<b>Удалены следующие категории</b>:\n" + "\n".join("  - " + c for c in removed) + "\n"
+        if len(created) == 0 and len(unchanged) == 0:
+            msg += "\n<b>Список категорий очищен.</b>\n"
+    if len(unchanged) > 0:
+        msg += "<b>Следующие категории не изменились</b>:\n" + "\n".join("  = " + c for c in unchanged) + "\n"
+
+    if len(created) + len(removed) + len(unchanged) == 0:
+        msg = "<b>Список категорий очищен.</b>"
+
+    return msg
 
 
 def test_format():
