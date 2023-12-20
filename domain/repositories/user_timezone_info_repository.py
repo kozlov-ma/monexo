@@ -18,11 +18,6 @@ class UserTimezoneInfoRepositoryBase(ABC):
 
     @abstractmethod
     async def get_by_id(self, id: int) -> Option[UserTimezoneInfo]:
-        """
-        Возвращает пользователя по его id
-        :param id: id пользователя в telegram
-        :return: возвращает User, если пользователя с таким id нет, возвращает None
-        """
         pass
 
     @abstractmethod
@@ -58,7 +53,7 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
 
     async def get_by_id(self, id: int) -> Option[UserTimezoneInfo]:
         statement = (select(DbUserTimezoneInfo)
-                     .where(DbUserTimezoneInfo.telegram_id == id))
+                     .where(DbUserTimezoneInfo.user_telegram_id == id))
 
         timezone = await self.session.scalar(statement)
 
@@ -69,12 +64,12 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
 
     async def add(self, timezone: UserTimezoneInfo) -> Result[None, Exception]:
         statement = (select(DbUserTimezoneInfo)
-                     .where(DbUserTimezoneInfo.telegram_id == timezone.id))
+                     .where(DbUserTimezoneInfo.user_telegram_id == timezone.user_id))
 
         get_user = await self.session.scalar(statement)
 
         if get_user is not None:
-            return Err(KeyError(f"Timezone with id {timezone.id} already exists"))
+            return Err(KeyError(f"Timezone with id {timezone.user_id} already exists"))
 
         self.session.add(DbUserTimezoneInfo.from_timezone(timezone))
         await self.session.commit()
@@ -82,7 +77,7 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
 
     async def remove_by_id(self, id: int) -> Option[UserTimezoneInfo]:
         statement = (select(DbUserTimezoneInfo)
-                     .where(DbUserTimezoneInfo.telegram_id == id))
+                     .where(DbUserTimezoneInfo.user_telegram_id == id))
 
         get_timezone = await self.session.scalar(statement)
 
@@ -96,12 +91,12 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
 
     async def update(self, timezone: UserTimezoneInfo) -> Result[None, Exception]:
         statement = (select(DbUserTimezoneInfo)
-                     .where(DbUserTimezoneInfo.telegram_id == timezone.id))
+                     .where(DbUserTimezoneInfo.user_telegram_id == timezone.user_id))
 
         get_timezone = await self.session.scalar(statement)
 
         if get_timezone is None:
-            return Err(KeyError(f"Timezone with id {timezone.id} already exists"))
+            return Err(KeyError(f"Timezone with id {timezone.user_id} already exists"))
 
         get_timezone.timezone = timezone.timezone
         get_timezone.is_updatable = timezone.is_updatable
@@ -113,7 +108,7 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
     async def update_partially(self, id: int, timezone: int = None, is_updatable: bool = None
                                ) -> Result[None, Exception]:
         statement = (select(DbUserTimezoneInfo)
-                     .where(DbUserTimezoneInfo.telegram_id == id))
+                     .where(DbUserTimezoneInfo.user_telegram_id == id))
 
         get_timezone = await self.session.scalar(statement)
 
@@ -131,7 +126,7 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
 
     async def add_or_update(self, timezone: UserTimezoneInfo) -> Result[None, Exception]:
         statement = (select(DbUserTimezoneInfo)
-                     .where(DbUserTimezoneInfo.telegram_id == timezone.id))
+                     .where(DbUserTimezoneInfo.user_telegram_id == timezone.user_id))
 
         get_timezone = await self.session.scalar(statement)
 

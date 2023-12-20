@@ -3,9 +3,11 @@ from domain.repositories.user_repository import UserRepository
 from domain.models.db_base import Base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from domain.repositories.user_timezone_info_repository import UserTimezoneInfoRepository
+from domain.repositories.budget_change_repository import BudgetChangeRepository
 
 __user_repository = None
 __user_timezone_info_repository = None
+__budget_change_repository = None
 
 
 async def init_db(db_url: str) -> None:
@@ -19,6 +21,7 @@ async def init_db(db_url: str) -> None:
     session = AsyncSession(engine)
     __user_repository = UserRepository(session)
     __user_timezone_info_repository = UserTimezoneInfoRepository(session)
+    __budget_change_repository = BudgetChangeRepository(session)
 
 
 def user_repository() -> UserRepository | None:
@@ -28,3 +31,6 @@ def user_repository() -> UserRepository | None:
 def user_timezone_info_repository() -> UserTimezoneInfoRepository | None:
     return __user_repository
 
+
+def budget_change_repository() -> BudgetChangeRepository | None:
+    return __budget_change_repository
