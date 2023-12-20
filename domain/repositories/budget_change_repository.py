@@ -14,7 +14,7 @@ class BudgetChangeRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def get_all_categories(self) -> Option[list[Category]]:
+    async def get_all_categories(self) -> list[Category]:
         pass
 
     @abstractmethod
@@ -35,12 +35,12 @@ class BudgetChangeRepositoryBase(ABC):
 
 
     @abstractmethod
-    async def get_all_budget_changes(self) -> Option[list[BudgetChange]]:
+    async def get_all_budget_changes(self) -> list[BudgetChange]:
         pass
 
     @abstractmethod
     async def get_budget_changes_by_telegram_id(self, telegram_id: int, category_id: int = None
-                                                ) -> Option[list[BudgetChange]]:
+                                                ) -> list[BudgetChange]:
         pass
 
     @abstractmethod
@@ -57,9 +57,9 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
         super().__init__()
         self.session: AsyncSession = session
 
-    async def get_all_categories(self) -> Option[list[Category]]:
+    async def get_all_categories(self) -> list[Category]:
         statement = select(DbCategory)
-        return Option.Some(list(await self.session.scalars(statement)))
+        return list(category.to_category() for category in await self.session.scalars(statement))
 
     async def get_categories_by_telegram_id(self, telegram_id: int) -> Option[list[Category]]:
         statement = (select(DbCategory)
@@ -110,12 +110,12 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
 
         return Option.Some(get_category.to_category())
 
-    async def get_all_budget_changes(self) -> Option[list[BudgetChange]]:
+    async def get_all_budget_changes(self) -> list[BudgetChange]:
         statement = select(DbBudgetChange)
-        return Option.Some(list(await self.session.scalars(statement)))
+        return list(budget_change.to_budget_change() for budget_change in await self.session.scalars(statement))
 
     async def get_budget_changes_by_telegram_id(self, telegram_id: int, category_id: int = None
-                                                ) -> Option[list[BudgetChange]]:
+                                                ) -> list[BudgetChange]:
         if category_id is None:
             statement = (select(DbBudgetChange)
                          .where(DbBudgetChange.user_telegram_id == telegram_id))
@@ -127,9 +127,9 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
         budget_changes = await self.session.scalars(statement)
 
         if budget_changes is None:
-            return Option.NONE()
+            return []
 
-        return Option.Some(list(budget_changes))
+        return list(budget_change.to_budget_change() for budget_change in budget_changes)
 
     async def add_budget_change(self, budget_change: BudgetChange) -> Result[None, Exception]:
         statement = (select(DbBudgetChange)
