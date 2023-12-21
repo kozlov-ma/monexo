@@ -31,4 +31,4 @@ async def categories_for_expense(user_id: int, message_id: int, value: float) ->
         else:
             buttons.append(InlineKeyboardButton(text=cat.name, callback_data=f"bc_{cat.id}"))
 
-    return InlineKeyboardMarkup(inline_keyboard=[buttons])
+    return InlineKeyboardMarkup(inline_keyboard=[[b] for b in buttons])

@@ -90,7 +90,7 @@ async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChang
     return option.Some(domain.BudgetChange(id, user_id, cat_id, msg_id, value, is_income))
 
 
-@budget_change_router.callback_query(lambda c: c.data.split("_")[0] == "bc" and len(c.data.split) == 2) #FIXME BUDGETCHANGE
+@budget_change_router.callback_query(lambda c: c.data.split("_")[0] == "bc" and len(c.data.split("_")) == 2) #FIXME BUDGETCHANGE
 async def budget_change_callback(cq: CallbackQuery) -> None:
     try:
         _, cat_id = cq.data.split("_") #FIXME BUDGETCHANGE
@@ -105,8 +105,8 @@ async def budget_change_callback(cq: CallbackQuery) -> None:
         await app.state.get().bc_repo.remove_budget_change_by_id(msg_id) #FIXME BUDGETCHANGE
         await app.state.get().bc_repo.add_budget_change(new_bc) #FIXME BUDGETCHANGE
 
-        new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id) #FIXME BUDGETCHANGE
-        await cq.message.edit_reply_markup(new_kb)
+        new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.unwrap().value) #FIXME BUDGETCHANGE
+        await cq.message.edit_reply_markup(reply_markup=new_kb)
 
     except Exception as e:
         await cq.answer("Произошла ошибка..")
