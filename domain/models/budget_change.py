@@ -14,7 +14,7 @@ class BudgetChange:
     id: int
 
     user_id: int
-    category_id: int
+    category_id: int | None
     message_id: int
 
     value: float
@@ -32,7 +32,7 @@ class DbBudgetChange(Base):
 
     value: Mapped[float] = mapped_column(Float)
     is_income: Mapped[bool] = mapped_column(Boolean)
-
+    
     def to_budget_change(self) -> BudgetChange:
         return BudgetChange(self.id, self.user_telegram_id, self.category_id,
                             self.message_telegram_id, self.value, self.is_income)

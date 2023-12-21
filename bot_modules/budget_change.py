@@ -50,15 +50,18 @@ async def budget_change(message: Message) -> None:
             change = (await app.add_expense(sender_id, amount)).unwrap_or(None)
             match change:
                 case app.Spent():
-                    msg = await message.answer(text.spent_money(change), parse_mode="HTML")
+                    expense_categories = await kb.categories_for_expense(sender_id, message.message_id, change.amount)
+                    msg = await message.answer(text.spent_money(change), parse_mode="HTML", reply_markup=expense_categories)
                     bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()#FIXME BUDGETCHANGE
                     await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
                 case app.SpentOverDailyBudget():
-                    msg = await message.answer(text.spent_over_daily_budget(change), parse_mode="HTML")
+                    expense_categories = await kb.categories_for_expense(sender_id, message.message_id, change.amount)
+                    msg = await message.answer(text.spent_over_daily_budget(change), parse_mode="HTML", reply_markup=expense_categories)
                     bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()#FIXME BUDGETCHANGE
                     await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
                 case app.SpentAllBudget():
-                    msg = await message.answer(text.spent_all_budget(change), parse_mode="HTML")
+                    expense_categories = await kb.categories_for_expense(sender_id, message.message_id, change.amount)
+                    msg = await message.answer(text.spent_all_budget(change), parse_mode="HTML", reply_markup=expense_categories)
                     bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()#FIXME BUDGETCHANGE
                     await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
                 case None:
@@ -68,7 +71,7 @@ async def budget_change(message: Message) -> None:
 
 
 async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChange) -> Option[domain.BudgetChange]: #FIXME BUDGETCHANGE
-    cat_id = 100500 #FIXME Какой id для случайной?? BUDGETCHANGE
+    cat_id = None
     is_income = False
     match app_bc:
         case app.Spent(amount, _):
@@ -84,7 +87,7 @@ async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChang
             return Option.NONE()
 
     id = uuid.uuid4().int % 2 ** 31
-    return option.Some(domain.BudgetChange(id, user_id, msg_id, cat_id, value, is_income))
+    return option.Some(domain.BudgetChange(id, user_id, cat_id, msg_id, value, is_income))
 
 
 @budget_change_router.callback_query(lambda c: c.data.split("_")[0] == "bc" and len(c.data.split) == 2) #FIXME BUDGETCHANGE
