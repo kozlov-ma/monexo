@@ -26,7 +26,7 @@ async def main() -> None:
     with open("admins", "r") as f:
         admins = [name.strip() for name in f.readlines()]
 
-    await domain.init_db(f"postgresql+asyncpg://postgres:{POSTGRES_PASSWORD}@db/postgres")
+    await domain.init_db(f"postgresql+asyncpg://postgres:{POSTGRES_PASSWORD}@172.18.0.2/postgres")
 
     app.state.init(admin_usernames=admins, users_repo=domain.user_repository(),
                    bc_repo=domain.budget_change_repository(), tz_repo=domain.user_timezone_info_repository())

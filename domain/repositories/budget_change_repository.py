@@ -73,7 +73,7 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
         if categories is None:
             return Option.NONE()
 
-        return Option.Some(list(categories))
+        return Option.Some(list(category.to_category() for category in categories))
 
     async def get_category_by_id(self, category_id: int) -> Option[Category]:
         statement = (select(DbCategory)
