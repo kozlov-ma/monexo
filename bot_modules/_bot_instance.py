@@ -25,4 +25,4 @@ async def init_bot(token: str):
 
     assert bot is not None
     # And the run events dispatching
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, skip_updates=True)
