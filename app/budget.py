@@ -29,7 +29,7 @@ async def add_expense(
         user = replace(
             user, expense_today=user.expense_today + amount, budget_today=left_for_today
         )
-        await state.get().users_repo.update_user(user)  # FIXME Result
+        await state.get().users_repo.update(user)  # FIXME Result
         return Ok(Spent(amount, left_for_today))
     else:
         left_whole = user.remaining_budget - abs(left_for_today)
@@ -41,7 +41,7 @@ async def add_expense(
                 remaining_budget=0
             )
 
-            await state.get().users_repo.update_user(user)  # FIXME result
+            await state.get().users_repo.update(user)  # FIXME result
             return Ok(SpentAllBudget(amount))
 
         user = replace(
@@ -51,7 +51,7 @@ async def add_expense(
             remaining_budget=left_whole,
         )
 
-        await state.get().users_repo.update_user(user)  # FIXME Result
+        await state.get().users_repo.update(user)  # FIXME Result
         return Ok(
             SpentOverDailyBudget(amount, user.remaining_budget / (user.days_left - 1))
         )
@@ -74,7 +74,7 @@ async def add_income(
         budget_today=user.budget_today + amount,
     )
 
-    await state.get().users_repo.update_user(user)  # FIXME result
+    await state.get().users_repo.update(user)  # FIXME result
 
     return Ok(Added(amount, user.budget_today))
 
@@ -96,7 +96,7 @@ async def apply_today(
     new_days_left = max(user.days_left - 1, 0)
 
     if new_days_left == 0:
-        await state.get().users_repo.remove_user_by_id(user.id)  # FIXME result
+        await state.get().users_repo.remove_by_id(user.id)  # FIXME result
         return Ok(PeriodEnded(saved))
 
     new_remaining_budget = user.remaining_budget + saved
@@ -112,7 +112,7 @@ async def apply_today(
         days_left=new_days_left
     )
 
-    await state.get().users_repo.update_user(user)  # FIXME result
+    await state.get().users_repo.update(user)  # FIXME result
 
     return Ok(
         DayResults(

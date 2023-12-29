@@ -7,5 +7,16 @@ services:
     environment:
       POSTGRES_PASSWORD: exomonexo
 
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=exomonexo
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+
+
   bot:
     build: .

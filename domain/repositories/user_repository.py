@@ -4,16 +4,20 @@ from option import Option, Result, Ok, Err
 
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from redis.asyncio import Redis
+from redis.commands.search.field import TextField, NumericField, TagField
+from json import dumps, loads
 
 from domain.models.user import User, DbUser
+import loguru
 
 
 class UserRepositoryBase(ABC):
-    def __init__(self, session: AsyncSession | None = None) -> None:
+    def __init__(self, session: AsyncSession | None = None, redis: Redis | None = None) -> None:
         pass
 
     @abstractmethod
-    async def get_all(self) -> Option[list[User]]:
+    async def get_all(self) -> list[User]:
         pass
 
     @abstractmethod
@@ -26,84 +30,24 @@ class UserRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def add_user(self, user: User) -> Result[None, Exception]:
+    async def add(self, user: User) -> Result[None, Exception]:
         pass
 
     @abstractmethod
-    async def remove_user_by_id(self, id: int) -> Option[User]:
+    async def remove_by_id(self, id: int) -> Option[User]:
         pass
 
     @abstractmethod
-    async def update_user(self, user: User) -> Result[None, Exception]:
+    async def update(self, user: User) -> Result[None, Exception]:
         pass
 
     @abstractmethod
-    async def update_user_partially(self, id: int, **kwargs) -> Result[None, Exception]:
+    async def update_partially(self, id: int, **kwargs) -> Result[None, Exception]:
         pass
 
     @abstractmethod
-    async def add_or_update_user(self, user: User) -> Result[None, Exception]:
+    async def add_or_update(self, user: User) -> Result[None, Exception]:
         pass
-
-
-class InMemoryUserRepository(UserRepositoryBase):
-    def __init__(self):
-        super().__init__()
-
-        self.dict: dict[int, User] = {}
-
-    async def get_all(self) -> list[User]:
-        return Option.Some(list(self.dict.values()))
-
-    async def get_by_id(self, id: int) -> Option[User]:
-        if id in self.dict:
-            return Option.Some(self.dict[id])
-
-        return Option.NONE()
-
-    async def add_user(self, user: User) -> Result[None, Exception]:
-        if user.id in self.dict:
-            return Err(KeyError(f"User with id {user.id} already exists"))
-
-        self.dict[user.id] = user
-        return Ok(None)
-
-    async def remove_user_by_id(self, id: int) -> Option[User]:
-        if id not in self.dict:
-            return Option.NONE()
-
-        return Option.Some(self.dict.pop(id))
-
-    async def update_user(self, user: User) -> Result[None, Exception]:
-        if user.id not in self.dict:
-            return Err(KeyError(f"User with id {user.id} does not exist"))
-
-        self.dict[user.id] = user
-        return Ok(None)
-
-    async def update_user_partially(self, id: int,
-                                    days_left: int = None, whole_budget: float = None,
-                                    expense_today: float = None, income_today: float = None
-                                    ) -> Result[None, Exception]:
-        if id not in self.dict:
-            return Err(KeyError(f"User with id {id} does not exist"))
-
-        kwargs = {k: v for k, v in {
-            'days_left': days_left,
-            'whole_budget': whole_budget,
-            'expense_today': expense_today,
-            'income_today': income_today
-        }.items() if v is not None}
-
-        self.dict[id] = replace(self.dict[id], **kwargs)
-        return Ok(None)
-
-    async def add_or_update_user(self, user: User) -> Result[None, Exception]:
-        if user.id not in self.dict:
-            await self.add_user(user)
-        else:
-            await self.update_user(user)
-        return Ok(None)
 
 
 class PostgresUserRepository(UserRepositoryBase):
@@ -127,7 +71,7 @@ class PostgresUserRepository(UserRepositoryBase):
 
         return Option.Some(user.to_user())
 
-    async def add_user(self, user: User) -> Result[None, Exception]:
+    async def add(self, user: User) -> Result[None, Exception]:
         statement = (select(DbUser)
                      .where(DbUser.telegram_id == user.id))
 
@@ -140,7 +84,7 @@ class PostgresUserRepository(UserRepositoryBase):
         await self.session.commit()
         return Ok(None)
 
-    async def remove_user_by_id(self, id: int) -> Option[User]:
+    async def remove_by_id(self, id: int) -> Option[User]:
         statement = (select(DbUser)
                      .where(DbUser.telegram_id == id))
 
@@ -154,7 +98,7 @@ class PostgresUserRepository(UserRepositoryBase):
 
         return Option.Some(get_user.to_user())
 
-    async def update_user(self, user: User) -> Result[None, Exception]:
+    async def update(self, user: User) -> Result[None, Exception]:
         statement = (select(DbUser)
                      .where(DbUser.telegram_id == user.id))
 
@@ -173,10 +117,10 @@ class PostgresUserRepository(UserRepositoryBase):
 
         return Ok(None)
 
-    async def update_user_partially(self, id: int,
-                                    days_left: int = None, remaining_budget: float = None, budget_today: float = None,
-                                    expense_today: float = None, income_today: float = None
-                                    ) -> Result[None, Exception]:
+    async def update_partially(self, id: int,
+                               days_left: int = None, remaining_budget: float = None, budget_today: float = None,
+                               expense_today: float = None, income_today: float = None
+                               ) -> Result[None, Exception]:
         statement = (select(DbUser)
                      .where(DbUser.telegram_id == id))
 
@@ -200,18 +144,81 @@ class PostgresUserRepository(UserRepositoryBase):
 
         return Ok(None)
 
-    async def add_or_update_user(self, user: User) -> Result[None, Exception]:
+    async def add_or_update(self, user: User) -> Result[None, Exception]:
         statement = (select(DbUser)
                      .where(DbUser.telegram_id == user.id))
 
         get_user = await self.session.scalar(statement)
 
         if get_user is not None:
-            await self.update_user(user)
+            await self.update(user)
         else:
-            await self.add_user(user)
+            await self.add(user)
 
         return Ok(None)
 
 
-UserRepository: type = PostgresUserRepository
+class RedisUserRepository(UserRepositoryBase):
+    def __init__(self, redis: Redis):
+        super().__init__()
+        self.redis = redis
+        self.schema = (
+
+        )
+
+    async def get_all(self) -> list[User]:
+        keys = self.redis.hkeys("user")
+
+        result = []
+        for key in keys:
+            get_user = await self.redis.hgetall(f"user:{key}")
+            result.append(User(**get_user))
+
+        return result
+
+    async def get_by_id(self, id: int) -> Option[User]:
+        get_user = await self.redis.hgetall(f"user:{id}")
+        loguru.logger.info(get_user)
+
+        if get_user == {}:
+            return Option.NONE()
+
+        return Option.Some(User(**get_user))
+
+    async def add(self, user: User) -> Result[None, Exception]:
+        loguru.logger.info(user.__dict__)
+        await self.redis.hset(f"user:{user.id}", mapping=user.__dict__)
+        return Result.Ok(None)
+
+    async def remove_by_id(self, id: int) -> Option[User]:
+        get_user = await self.redis.hgetall(f"user:{id}")
+
+        if get_user == {}:
+            return Option.NONE()
+
+        user = User(**get_user)
+        await self.redis.hdel(f"user:{id}")
+        return Option.Some(user)
+
+    async def update(self, user: User) -> Result[None, Exception]:
+        get_user = await self.redis.hgetall(f"user:{id}")
+
+        if get_user == {}:
+            return Result.Err(KeyError())
+
+        await self.redis.hset(f"user:{user.id}", mapping=user.__dict__)
+        return Result.Ok(None)
+
+    async def update_partially(self, id: int, **kwargs) -> Result[None, Exception]:
+        pass
+
+    async def add_or_update(self, user: User) -> Result[None, Exception]:
+        get_user = await self.redis.hgetall(f"user:{user.id}")
+
+        if get_user == {}:
+            return await self.add(user)
+        else:
+            return await self.update(user)
+
+
+UserRepository: type = RedisUserRepository

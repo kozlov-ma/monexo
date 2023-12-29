@@ -55,7 +55,7 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
         user = domain.User(id=message.from_user.id, days_left=data["days_left"],
                            remaining_budget=data["budget"] - data["budget"] / days_left,
                            budget_today=data["budget"] / days_left, )
-        await app.state.get().users_repo.add_or_update_user(user)
+        await app.state.get().users_repo.add_or_update(user)
 
         await message.answer(text.settings_saved(budget=data["budget"], days_left=data["days_left"]))
     except ValueError:

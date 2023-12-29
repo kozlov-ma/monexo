@@ -4,6 +4,7 @@ from domain.models.db_base import Base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from domain.repositories.user_timezone_info_repository import UserTimezoneInfoRepository
 from domain.repositories.budget_change_repository import BudgetChangeRepository
+from redis.asyncio import Redis
 
 __user_repository = None
 __user_timezone_info_repository = None
@@ -14,12 +15,14 @@ async def init_db(db_url: str) -> None:
     global __user_repository
 
     engine = create_async_engine(db_url, echo=True, query_cache_size=0)
+    redis = Redis(host='redis', port=6379,
+                 db=1, username="default", password="exomonexo", socket_timeout=None, decode_responses=True)
 
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
 
     session = AsyncSession(engine)
-    __user_repository = UserRepository(session)
+    __user_repository = UserRepository(redis)
     __user_timezone_info_repository = UserTimezoneInfoRepository(session)
     __budget_change_repository = BudgetChangeRepository(session)
 

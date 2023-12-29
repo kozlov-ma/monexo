@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from os import getenv
+from redis import Redis
 
 from dotenv import load_dotenv
 
