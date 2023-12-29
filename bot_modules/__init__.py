@@ -1,5 +1,5 @@
 from bot_modules import text
-from bot_modules._bot_instance import init_bot
+from bot_modules._bot_instance import set_bot
 
 
 def bot():

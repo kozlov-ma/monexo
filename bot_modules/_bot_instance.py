@@ -1,3 +1,6 @@
+import asyncio
+from typing import Coroutine
+
 from aiogram import Dispatcher, Bot
 from aiogram.enums import ParseMode
 
@@ -11,18 +14,6 @@ from bot_modules.stats import stats_router
 bot: Bot = None
 
 
-async def init_bot(token: str):
+def set_bot(instance: Bot):
     global bot
-
-    # Dispatcher is a root router
-    dp = Dispatcher()
-    # Register all the routers from bot_modules package
-    dp.include_routers(start_router, settings_router, budget_change_router, next_day_router, stats_router,
-                       categories_router)
-
-    # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    bot = Bot(token, parse_mode=ParseMode.HTML)
-
-    assert bot is not None
-    # And the run events dispatching
-    await dp.start_polling(bot, skip_updates=True)
+    bot = instance

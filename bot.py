@@ -31,9 +31,20 @@ async def main() -> None:
     app.state.init(admin_usernames=admins, users_repo=domain.user_repository(),
                    bc_repo=domain.budget_change_repository(), tz_repo=domain.user_timezone_info_repository())
 
-    await bot_modules.init_bot(TOKEN)
+    dp = Dispatcher()
+    # Register all the routers from bot_modules package
+    dp.include_routers(start_router, settings_router, budget_change_router, next_day_router, stats_router,
+                       categories_router)
+
+    # Initialize Bot instance with a default parse mode which will be passed to all API calls
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+
+    print("hello")
+    await bot_modules.set_bot(bot)
+    await dp.start_polling(bot, skip_updates=True)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
+    print("allo")
     asyncio.run(main())
