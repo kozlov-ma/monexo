@@ -21,7 +21,7 @@ async def init_db(db_url: str) -> None:
     engine = create_async_engine(db_url, echo=True, query_cache_size=0)
 
     async with engine.begin() as connection:
-        await connection.run_async(Base.metadata.create_all)
+        await connection.run_sync(Base.metadata.create_all)
 
     session = AsyncSession(engine)
     __user_repository = UserRepository(session)
