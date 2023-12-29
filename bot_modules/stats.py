@@ -33,8 +33,9 @@ async def category_stats(user_id: int) -> str | None:
         if bc.category_id is None:
             continue
 
-        category = await bc_repo.get_category_by_id(bc.category_id)
-        expenses[category] += bc.value
+        category = (await bc_repo.get_category_by_id(bc.category_id)).unwrap_or(None)
+        if category is not None:
+            expenses[category.name] += bc.value
 
     if any(expenses):
         return text.cat_stats(expenses)

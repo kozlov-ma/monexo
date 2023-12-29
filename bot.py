@@ -39,12 +39,10 @@ async def main() -> None:
     # Initialize Bot instance with a default parse mode which will be passed to all API calls
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
 
-    print("hello")
-    await bot_modules.set_bot(bot)
-    await dp.start_polling(bot, skip_updates=True)
+    bot_modules.set_bot(bot)
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    print("allo")
     asyncio.run(main())
