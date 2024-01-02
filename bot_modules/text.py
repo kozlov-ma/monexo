@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults
 
 
@@ -103,6 +105,56 @@ def stats(day_res: DayResults) -> str:
     return msg
 
 
+def too_many_categories() -> str:
+    return ("<b>Предупреждение:</b> <i>большое количество категорий может сделать использование бота страшным и "
+            "неудобным!</i>")
+
+
+def underscore_in_category_name() -> str:
+    return "<b>Название категории не должно содержать символ '_'.</b> Введите категории заново:"
+
+
+def no_categories_msg() -> str:
+    return "<b>Список категорий пуст.</b>"
+
+
+def categories_msg(categories: Iterable[str]) -> str:
+    return f"<b>Пользовательские категории</b>:\n" + "\n".join(categories)
+
+
+def ask_for_categories() -> str:
+    return ("<b>Редактирование категорий</b>\nВведите названия <b>всех</b> категорий, каждое с новой строки, "
+            "например:\n\nЕда\nТранспорт\nРазвлечения\n\nЕсли хотите удалить все категории, введите '_'")
+
+
+def categories_set(created: Iterable[str], removed: Iterable[str], unchanged: Iterable[str]) -> str:
+    msg = ""
+    created = list(created)
+    removed = list(removed)
+    unchanged = list(unchanged)
+    if len(created) > 0:
+        msg += f"<b>Добавлены следующие категории</b>:\n" + "\n".join("  + " + c for c in created) + "\n"
+    if len(removed) > 0:
+        msg += "<b>Удалены следующие категории</b>:\n" + "\n".join("  - " + c for c in removed) + "\n"
+        if len(created) == 0 and len(unchanged) == 0:
+            msg += "\n<b>Список категорий очищен.</b>\n"
+    if len(unchanged) > 0:
+        msg += "<b>Следующие категории не изменились</b>:\n" + "\n".join("  = " + c for c in unchanged) + "\n"
+
+    if len(created) + len(removed) + len(unchanged) == 0:
+        msg = "<b>Список категорий очищен.</b>"
+
+    return msg
+
+
+def cat_stats(expense_by_categories: dict[str, float]) -> str:
+    msg = "<b>Расходы по категориям:</b>\n"
+    for category, expense in expense_by_categories:
+        msg += f"{category}: {format_float(expense)}"
+
+    return msg
+
+
 def day_results(day_res: DayResults) -> str:
     msg = "<b>Начался новый день!</b>\n"
     if day_res.income > 0:
@@ -121,7 +173,7 @@ def day_results(day_res: DayResults) -> str:
 def help_msg() -> str:
     return """
 <b>Что может этот бот?</b>
-    - Помогает учитывать ежедневные расходы и строить бюджет на небольшой срок
+    - Помогает учитывать ежедневные расходы и не тратить на ненужные вещи
     - В конце дня предоставляет статистику
     - Хвалит за экономию
 
@@ -138,6 +190,17 @@ def help_msg() -> str:
     - Каждые 24 часа бот будет сообщать вам о текущем состоянии бюджета и давать статистику за прошедший день
     - Если вы считаете, что новые траты относятся к следующему дню, используйте /nextday
     - Это сообщение можно показать ещё раз с помощью /help
+
+<b>Продвинутые фичи: Категории</b>
+    - Это экспериментальная функция, используйте на свой страх и риск!
+    - Чтобы просмотреть или редактировать категории, используйте /categories
+    - Если задана хотя бы одна категория, её можно будет указать при трате
+    - Категории учитываются в статистике за день
+
+<b>Небольшие советы</b>
+    - Не обязательно записывать точную сумму траты, даже приблизительная поможет оценить, сколько вы тратите
+    - Если забыли записать трату -- ничего страшного!
+    - Не стоит использовать Monexo как домашнюю бухгалтерию -- бот нужен, чтобы быстро записывать траты и быстро получать статистику
 """
 
 

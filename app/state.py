@@ -4,7 +4,9 @@ from dataclasses import dataclass
 from functools import cache
 
 from domain.models.user import User
+from domain.repositories.budget_change_repository import BudgetChangeRepositoryBase
 from domain.repositories.user_repository import UserRepositoryBase
+from domain.repositories.user_timezone_info_repository import UserTimezoneInfoRepositoryBase
 
 
 class SettingsConversationState(enum.Enum):
@@ -18,7 +20,8 @@ class SettingsConversationState(enum.Enum):
 class ApplicationState:
     admin_usernames: list[str] = None
     users_repo: UserRepositoryBase = None
-    conversation_states: dict[int, SettingsConversationState] = None
+    bc_repo: BudgetChangeRepositoryBase = None
+    tz_repo: UserTimezoneInfoRepositoryBase = None
 
 
 _state_instance: ApplicationState | None = None
@@ -31,7 +34,7 @@ def init(*args, **kwargs) -> None:
             "Tried to initialize new Application State, but it already exists."
         )
 
-    _state_instance = ApplicationState(*args, **kwargs, conversation_states={})
+    _state_instance = ApplicationState(*args, **kwargs)
 
 
 def get() -> ApplicationState:
