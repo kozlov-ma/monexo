@@ -100,7 +100,9 @@ def stats(day_res: DayResults) -> str:
 
     msg += f"Остаток на сегодня: <b>{format_float(day_res.saved)}</b>\n"
     msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget)}</b>\n"
-    msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
+
+    if day_res.expense > 0 or day_res.income > 0:
+        msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
 
     return msg
 
@@ -150,6 +152,8 @@ def categories_set(created: Iterable[str], removed: Iterable[str], unchanged: It
 def cat_stats(expense_by_categories: dict[str, float]) -> str:
     msg = "<b>Расходы по категориям:</b>\n"
     for category, expense in expense_by_categories.items():
+        if expense < 0.01:
+            continue
         msg += f"{category}: {format_float(expense)}\n"
 
     return msg

@@ -113,6 +113,7 @@ async def apply_today(
     )
 
     await state.get().users_repo.update_user(user)  # FIXME result
+    await state.get().bc_repo.remove_all_budget_changes_by_tg_id(user.id)
 
     return Ok(
         DayResults(

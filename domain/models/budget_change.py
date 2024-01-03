@@ -30,7 +30,7 @@ class DbBudgetChange(Base):
     message_telegram_id: Mapped[int] = mapped_column(Integer)
 
     value: Mapped[float] = mapped_column(Float)
-    
+
     def to_budget_change(self) -> BudgetChange:
         return BudgetChange(self.id, self.user_telegram_id, self.category_id,
                             self.message_telegram_id, self.value)

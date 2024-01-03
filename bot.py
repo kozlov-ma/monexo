@@ -16,7 +16,6 @@ from bot_modules.settings import settings_router
 from bot_modules.start import start_router
 from bot_modules.stats import stats_router
 
-# Bot token can be obtained via https://t.me/BotFather
 load_dotenv(".env")
 TOKEN = getenv("BOT_TOKEN")
 POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")

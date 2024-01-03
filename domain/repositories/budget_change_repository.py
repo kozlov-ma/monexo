@@ -54,6 +54,10 @@ class BudgetChangeRepositoryBase(ABC):
     async def remove_budget_change_by_id(self, budget_change_id: int) -> Option[BudgetChange]:
         pass
 
+    @abstractmethod
+    async def remove_all_budget_changes_by_tg_id(self, telegram_id: int) -> Option[list[BudgetChange]]:
+        pass
+
 
 class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
     def __init__(self, session: AsyncSession) -> None:
@@ -171,6 +175,16 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
         await self.session.commit()
 
         return Option.Some(get_budget_change.to_budget_change())
+
+    async def remove_all_budget_changes_by_tg_id(self, telegram_id: int) -> list[BudgetChange]:
+        budget_changes = []
+        for c in (await self.get_categories_by_telegram_id(telegram_id)).unwrap_or([]) + [None]:
+            changes = await self.get_budget_changes_by_telegram_id(telegram_id)
+            for change in changes:
+                bc = await self.remove_budget_change_by_id(change.id)
+                if bc.is_some:
+                    budget_changes.append(bc.unwrap())
+        return budget_changes
 
 
 BudgetChangeRepository: type = PostgresBudgetChangeRepository

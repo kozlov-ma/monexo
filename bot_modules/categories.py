@@ -37,7 +37,7 @@ async def change_categories(callback_query: CallbackQuery, state: FSMContext):
 @categories_router.message(CategoriesForm.categories)
 async def process_categories(message: Message, state: FSMContext) -> None:
     try:
-        old_categories = await app.state.get().bc_repo.get_all_categories()
+        old_categories = (await app.state.get().bc_repo.get_categories_by_telegram_id(message.from_user.id)).unwrap_or([])
 
         if message.text == "_":
             for c in old_categories:

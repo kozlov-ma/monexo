@@ -56,6 +56,7 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
                            remaining_budget=data["budget"] - data["budget"] / days_left,
                            budget_today=data["budget"] / days_left, )
         await app.state.get().users_repo.add_or_update_user(user)
+        await app.state.get().bc_repo.remove_all_budget_changes_by_tg_id(user.id)
 
         await message.answer(text.settings_saved(budget=data["budget"], days_left=data["days_left"]))
     except ValueError:
