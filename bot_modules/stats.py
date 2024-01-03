@@ -27,15 +27,16 @@ async def category_stats(user_id: int) -> str | None:
     bc_repo = app.state.get().bc_repo
     budget_changes = await bc_repo.get_budget_changes_by_telegram_id(user_id)
     expenses = defaultdict(float)
+    unsorted = 0
     for bc in budget_changes:
-        if bc.is_income:
-            continue
         if bc.category_id is None:
-            continue
+            unsorted += bc.value
 
         category = (await bc_repo.get_category_by_id(bc.category_id)).unwrap_or(None)
         if category is not None:
             expenses[category.name] += bc.value
+
+    expenses['Другое'] = unsorted
 
     if any(expenses):
         return text.cat_stats(expenses)

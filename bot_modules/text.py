@@ -149,8 +149,8 @@ def categories_set(created: Iterable[str], removed: Iterable[str], unchanged: It
 
 def cat_stats(expense_by_categories: dict[str, float]) -> str:
     msg = "<b>Расходы по категориям:</b>\n"
-    for category, expense in expense_by_categories:
-        msg += f"{category}: {format_float(expense)}"
+    for category, expense in expense_by_categories.items():
+        msg += f"{category}: {format_float(expense)}\n"
 
     return msg
 

@@ -40,7 +40,11 @@ async def budget_change(message: Message) -> None:
             await message.answer(text.must_have_settings_first(), parse_mode="HTML")
             return
         msg = await message.answer(text.added_money(change), parse_mode="HTML")
-        bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()#FIXME BUDGETCHANGE
+        bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap_or(None)#FIXME BUDGETCHANGE
+
+        if bc is None:
+            return
+
         await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
     else:
         if not SINGLE_OPERAND_REGEX.match(message.text) and result < 0:
@@ -72,7 +76,6 @@ async def budget_change(message: Message) -> None:
 
 async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChange) -> Option[domain.BudgetChange]: #FIXME BUDGETCHANGE
     cat_id = None
-    is_income = False
     match app_bc:
         case app.Spent(amount, _):
             value = amount
@@ -80,14 +83,11 @@ async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChang
             value = amount
         case app.SpentAllBudget(amount):
             value = amount
-        case app.Added(amount):
-            is_income = True
-            value = amount
         case _:
             return Option.NONE()
 
     id = uuid.uuid4().int % 2 ** 31
-    return option.Some(domain.BudgetChange(id, user_id, cat_id, msg_id, value, is_income))
+    return option.Some(domain.BudgetChange(id, user_id, cat_id, msg_id, value))
 
 
 @budget_change_router.callback_query(lambda c: c.data.split("_")[0] == "bc" and len(c.data.split("_")) == 2) #FIXME BUDGETCHANGE
@@ -102,7 +102,7 @@ async def budget_change_callback(cq: CallbackQuery) -> None:
         else:
             return
 
-        await app.state.get().bc_repo.remove_budget_change_by_id(msg_id) #FIXME BUDGETCHANGE
+        await app.state.get().bc_repo.remove_budget_change_by_id(old_bc.unwrap().id) #FIXME BUDGETCHANGE
         await app.state.get().bc_repo.add_budget_change(new_bc) #FIXME BUDGETCHANGE
 
         new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.unwrap().value) #FIXME BUDGETCHANGE

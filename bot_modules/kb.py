@@ -21,7 +21,7 @@ async def categories_for_expense(user_id: int, message_id: int, value: float) ->
     msg_bc = (await app.state.get().bc_repo.get_budget_changes_by_message_id(message_id)).unwrap_or(None)
     if msg_bc is None:
         id = uuid.uuid4().int % 2 ** 31
-        msg_bc = domain.BudgetChange(id, user_id, None, message_id, value, is_income=False)
+        msg_bc = domain.BudgetChange(id, user_id, None, message_id, value)
         await app.state.get().bc_repo.add_budget_change(msg_bc)
 
     buttons = []
