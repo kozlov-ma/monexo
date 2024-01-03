@@ -104,6 +104,8 @@ def stats(day_res: DayResults) -> str:
     if day_res.expense > 0 or day_res.income > 0:
         msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
 
+    msg += "\n"
+
     return msg
 
 
@@ -170,6 +172,16 @@ def day_results(day_res: DayResults) -> str:
 
     msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget + day_res.new_daily_budget)}</b>\n"
     msg += f"Бюджет на сегодня: <b>{format_float(day_res.new_daily_budget)}</b>"
+
+    return msg
+
+
+def telemetry(n_active_users: int, n_categories_users: int, avg_budget: float) -> str:
+    msg = "<b>Общая статистика бота:</b>\n"
+    msg += "\n"
+    msg += f"<b>Всего активных пользователей:</b> {n_active_users}\n"
+    msg += f"<b>Пользуются функцией 'Категории':</b> {n_categories_users}\n"
+    msg += f"<b>Средний бюджет пользователя:</b> {avg_budget}"
 
     return msg
 

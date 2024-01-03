@@ -15,6 +15,7 @@ from bot_modules.next_day import next_day_router
 from bot_modules.settings import settings_router
 from bot_modules.start import start_router
 from bot_modules.stats import stats_router
+from bot_modules.telemetry import telemetry_router
 
 load_dotenv(".env")
 TOKEN = getenv("BOT_TOKEN")
@@ -33,7 +34,7 @@ async def main() -> None:
     dp = Dispatcher()
     # Register all the routers from bot_modules package
     dp.include_routers(start_router, settings_router, budget_change_router, next_day_router, stats_router,
-                       categories_router)
+                       categories_router, telemetry_router)
 
     # Initialize Bot instance with a default parse mode which will be passed to all API calls
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
