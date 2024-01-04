@@ -77,6 +77,7 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
 
         await app.state.get().users_repo.add_or_update_user(user)
         await app.state.get().timezone_users_repo.add_or_update(timezone_user)
+        await app.state.get().bc_repo.remove_all_budget_changes_by_tg_id(user.id)
 
         await message.answer(text.settings_saved(autoupdate=data["is_updatable"], 
                                                  timezone=data["timezone_msk"], 

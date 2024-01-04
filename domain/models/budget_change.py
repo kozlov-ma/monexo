@@ -14,10 +14,10 @@ class BudgetChange:
     id: int
 
     user_id: int
-    category_id: int
+    category_id: int | None
+    message_id: int
 
     value: float
-    is_income: bool
 
 
 class DbBudgetChange(Base):
@@ -26,21 +26,22 @@ class DbBudgetChange(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     user_telegram_id: Mapped[int] = mapped_column(Integer)
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
+    category_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    message_telegram_id: Mapped[int] = mapped_column(Integer)
 
     value: Mapped[float] = mapped_column(Float)
-    is_income: Mapped[bool] = mapped_column(Boolean)
 
     def to_budget_change(self) -> BudgetChange:
-        return BudgetChange(self.id, self.user_telegram_id, self.category_id, self.value, self.is_income)
+        return BudgetChange(self.id, self.user_telegram_id, self.category_id,
+                            self.message_telegram_id, self.value)
 
     @staticmethod
     def from_budget_change(budget_change: BudgetChange) -> DbBudgetChange:
         return DbBudgetChange(id=budget_change.id, user_telegram_id=budget_change.user_id,
-                              category_id=budget_change.category_id, value=budget_change.value,
-                              is_income=budget_change.is_income)
+                              category_id=budget_change.category_id, message_telegram_id=budget_change.message_id,
+                              value=budget_change.value)
 
     def __repr__(self):
         return \
-            f'<Category id={self.id} user_telegram_id={self.user_telegram_id} category_id={
-            self.category_id} value={self.value} is_income={self.is_income}>'
+            f'<BudgetChange id={self.id} user_telegram_id={self.user_telegram_id} category_id={
+            self.category_id} message_telegram_id={self.message_telegram_id} value={self.value}>'
