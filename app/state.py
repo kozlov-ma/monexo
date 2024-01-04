@@ -20,8 +20,6 @@ class SettingsConversationState(enum.Enum):
 class ApplicationState:
     admin_usernames: list[str] = None
     users_repo: UserRepositoryBase = None
-    timezone_users_repo: UserTimezoneInfoRepositoryBase = None
-    conversation_states: dict[int, SettingsConversationState] = None
     bc_repo: BudgetChangeRepositoryBase = None
     tz_repo: UserTimezoneInfoRepositoryBase = None
 

@@ -12,6 +12,7 @@ import domain
 from bot_modules.budget_change import budget_change_router
 from bot_modules.categories import categories_router
 from bot_modules.next_day import next_day_router
+
 from bot_modules.toggle_autoupdate import autoupdate_router
 
 from aiogram import Bot, Dispatcher
@@ -35,14 +36,18 @@ POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")
 async def schedule_cycle():
     while True:
         if datetime.now().second == 0:
-            await update_group_of_users()
-            time.sleep(2)
+            break
+    while True:
+        await update_group_of_users()
+        await asyncio.sleep(60 - datetime.now().second)
+
 
 async def update_group_of_users():
-    users = await app.state.get().timezone_users_repo.get_all()
+    users = await app.state.get().tz_repo.get_all()
     for user in users:
-        if datetime.now(timezone('Europe/Moscow')).minute + user.timezone() % 3 == 0 and user.is_updatable(): 
-            next_day_router._next_day(user.user_id)
+        # datetime.now(timezone('Europe/Moscow')).second + user.timezone % 24 == 0 and
+        if user.is_updatable:
+            await bot_modules.next_day._next_day(user.user_id)
 
 
 async def main() -> None:
@@ -51,7 +56,8 @@ async def main() -> None:
 
     await domain.init_db(f"postgresql+asyncpg://postgres:{POSTGRES_PASSWORD}@db/postgres")
 
-    app.state.init(admin_usernames=admins, users_repo=domain.user_repository(), timezone_users_repo = domain.user_timezone_info_repository())
+    app.state.init(admin_usernames=admins, users_repo=domain.user_repository(),
+                   bc_repo=domain.budget_change_repository(), tz_repo=domain.user_timezone_info_repository())
 
 
     dp = Dispatcher()
@@ -71,8 +77,8 @@ async def main() -> None:
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
 
     bot_modules.set_bot(bot)
-    await dp.start_polling(bot)
-
+    await asyncio.create_task(dp.start_polling(bot))
+    await asyncio.create_task(schedule_cycle())
 
 
 if __name__ == "__main__":
