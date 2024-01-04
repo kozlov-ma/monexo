@@ -1,6 +1,7 @@
 import logging
 
 from domain.models.user import User
+from domain.models.user_timezone_info import UserTimezoneInfo
 from domain.models.budget_change import BudgetChange
 from domain.repositories.user_repository import UserRepository
 from domain.models.db_base import Base
@@ -34,7 +35,7 @@ def user_repository() -> UserRepository | None:
 
 
 def user_timezone_info_repository() -> UserTimezoneInfoRepository | None:
-    return __user_repository
+    return __user_timezone_info_repository
 
 
 def budget_change_repository() -> BudgetChangeRepository | None:
