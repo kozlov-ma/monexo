@@ -14,7 +14,7 @@ import bot_modules
 import domain
 from bot_modules.budget_change import budget_change_router
 from bot_modules.categories import categories_router
-from bot_modules.next_day import next_day_router
+from bot_modules.next_day import next_day_router, next_day_for
 
 from bot_modules.toggle_autoupdate import autoupdate_router
 
@@ -42,7 +42,7 @@ async def update_group_of_users():
     users = await app.state.get().tz_repo.get_all()
     for user in users:
         if (datetime.now(timezone('Europe/Moscow')).hour + user.timezone) % 24 == 0 and user.is_updatable:
-            await bot_modules.next_day._next_day(user.user_id)
+            await next_day_for(bot_modules.bot(), user.user_id)
 
 
 async def main() -> None:
@@ -64,7 +64,9 @@ async def main() -> None:
         autoupdate_router,
         budget_change_router,
         next_day_router,
-        stats_router
+        categories_router,
+        stats_router,
+        telemetry_router
     )
 
     now = datetime.now()
