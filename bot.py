@@ -15,6 +15,7 @@ import domain
 from bot_modules.budget_change import budget_change_router
 from bot_modules.categories import categories_router
 from bot_modules.next_day import next_day_router, next_day_for
+from bot_modules.set_timezone import timezone_router
 
 from bot_modules.toggle_autoupdate import autoupdate_router
 
@@ -62,6 +63,7 @@ async def main() -> None:
         start_router,
         settings_router,
         autoupdate_router,
+        timezone_router,
         budget_change_router,
         next_day_router,
         categories_router,

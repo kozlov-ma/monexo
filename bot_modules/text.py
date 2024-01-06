@@ -87,10 +87,9 @@ def timezone_must_be_integer() -> str:
     return f"Часовой пояс должен быть целым числом и не может превосходить 24 по модулю."
 
 
-def settings_saved(autoupdate: bool, timezone: int, budget: float, days_left: int) -> str:
-    return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней, ваш часовой пояс —  Msk {'+' 
-    if timezone > 0 else '-'} {timezone}. Ежедневное обновление {'включено' if autoupdate else 'выключено'}."
-            f" бюджет на день: <b>{format_float(budget / days_left)}</b>")
+def settings_saved(budget: float, days_left: int) -> str:
+    return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней."
+            f"Бюджет на день: <b>{format_float(budget / days_left)}</b>")
 
 def autoupdate_enabled() -> str:
     return f"Автообновление включено"
@@ -242,3 +241,14 @@ def test_format():
     assert format_float(1) == "1"
     assert format_float(1000000) == "1 000 000"
     assert format_float(1000000.1) == "1 000 000.10"
+
+
+def current_timezone(timezone: int):
+    return f"Ваш часовой пояс —  Msk {'+' if timezone > 0 else '-'} {timezone}."
+
+
+def settings_with_time_saved(autoupdate: bool, timezone: int, budget: float, days_left: int) -> str:
+    return (
+        f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней, ваш часовой пояс —  Msk {'+'
+        if timezone > 0 else '-'} {timezone}. Ежедневное обновление {'включено' if autoupdate else 'выключено'}."
+        f" бюджет на день: <b>{format_float(budget / days_left)}</b>")
