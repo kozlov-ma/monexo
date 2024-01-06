@@ -97,13 +97,11 @@ async def budget_change_callback(cq: CallbackQuery) -> None:
         cat_id = int(cat_id)
         msg_id = cq.message.message_id
         old_bc = await app.state.get().bc_repo.get_budget_changes_by_message_id(msg_id)
-        if old_bc.is_some:
-            new_bc = replace(old_bc.unwrap(), category_id=cat_id)
-        else:
+
+        if not old_bc.is_some:
             return
 
-        await app.state.get().bc_repo.remove_budget_change_by_id(old_bc.unwrap().id) #FIXME BUDGETCHANGE
-        await app.state.get().bc_repo.add_budget_change(new_bc) #FIXME BUDGETCHANGE
+        await app.state.get().bc_repo.update_budget_change_category(old_bc.unwrap().id, cat_id)
 
         new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.unwrap().value) #FIXME BUDGETCHANGE
         await cq.message.edit_reply_markup(reply_markup=new_kb)
