@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
+
+import loguru
 from option import Option, Result, Ok, Err
 
 from sqlalchemy import select, update, delete, and_
@@ -48,6 +50,14 @@ class BudgetChangeRepositoryBase(ABC):
 
     @abstractmethod
     async def add_budget_change(self, budget_change: BudgetChange) -> Result[None, Exception]:
+        pass
+
+    @abstractmethod
+    async def update_budget_change(self, budget_change: BudgetChange) -> Result[None, Exception]:
+        pass
+
+    @abstractmethod
+    async def update_budget_change_category(self, budget_change_id: int, category_id: int) -> Result[None, Exception]:
         pass
 
     @abstractmethod
@@ -148,6 +158,36 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
             return Option.NONE()
 
         return Option.Some(budget_change.to_budget_change())
+
+    async def update_budget_change(self, budget_change: BudgetChange) -> Result[None, Exception]:
+        statement = (select(DbBudgetChange).where(DbBudgetChange.id == budget_change.id))
+
+        get_budget_change = await self.session.scalar(statement)
+
+        if get_budget_change is None:
+            return Err(KeyError(f"User with id {budget_change.id} already exists"))
+
+        get_budget_change.value = budget_change.value
+        get_budget_change.category_id = budget_change.category_id
+
+        await self.session.commit()
+
+        return Ok(None)
+
+    async def update_budget_change_category(self, budget_change_id: int, category_id: int) -> Result[None, Exception]:
+        statement = (select(DbBudgetChange).where(DbBudgetChange.id == budget_change_id))
+
+        get_budget_change = await self.session.scalar(statement)
+
+        if get_budget_change is None:
+            loguru.logger.error(f"User with id {budget_change_id} already exists")
+            return Err(KeyError(f"User with id {budget_change_id} already exists"))
+
+        get_budget_change.category_id = category_id
+
+        await self.session.commit()
+
+        return Ok(None)
 
     async def add_budget_change(self, budget_change: BudgetChange) -> Result[None, Exception]:
         statement = (select(DbBudgetChange)

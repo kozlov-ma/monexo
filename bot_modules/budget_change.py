@@ -6,7 +6,7 @@ from dataclasses import replace
 
 import option
 from aiogram import F, Router
-from aiogram.types import (Message, CallbackQuery, ReplyKeyboardRemove, )
+from aiogram.types import (Message, CallbackQuery, )
 from option import Option
 
 import app.state
@@ -108,8 +108,7 @@ async def budget_change_callback(cq: CallbackQuery) -> None:
             await cq.answer("Нельзя выбрать категорию для этой траты")
             return
 
-        await app.state.get().bc_repo.remove_budget_change_by_id(old_bc.id) #FIXME BUDGETCHANGE
-        await app.state.get().bc_repo.add_budget_change(new_bc) #FIXME BUDGETCHANGE
+        await app.state.get().bc_repo.update_budget_change_category(old_bc.id, cat_id)
 
         new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.value) #FIXME BUDGETCHANGE
         await cq.message.edit_reply_markup(reply_markup=new_kb)
