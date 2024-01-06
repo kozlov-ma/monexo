@@ -95,6 +95,10 @@ async def apply_today(
     saved = user.budget_today
     new_days_left = max(user.days_left - 1, 0)
 
+    if new_days_left == 0:
+        await state.get().users_repo.remove_user_by_id(user.id)  # FIXME result
+        return Ok(PeriodEnded(income, expense, saved))
+
     new_remaining_budget = user.remaining_budget + saved
     new_day_budget = new_remaining_budget / new_days_left
     new_remaining_budget -= new_day_budget
@@ -109,10 +113,7 @@ async def apply_today(
     )
 
     await state.get().users_repo.update_user(user)  # FIXME result
-
-    if new_days_left == 0:
-        await state.get().users_repo.remove_user_by_id(user.id)  # FIXME result
-        return Ok(PeriodEnded(income, expense, saved))
+    await state.get().bc_repo.remove_all_budget_changes_by_tg_id(user.id)
 
     return Ok(
         DayResults(

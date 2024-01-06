@@ -30,12 +30,10 @@ async def _next_day(user_id: int) -> Option[str]:
     if user is None:
         return Some(text.must_have_settings_first())
 
+    cat_stats = await stats.category_stats(user.id)
     result = (await app.budget.apply_today(user.id)).unwrap_or(None)
     if result is None:
         return NONE
-
-    cat_stats = await stats.category_stats(user.id)
-    await state.get().bc_repo.remove_all_budget_changes_by_tg_id(user.id)
 
     match result:
         case app.PeriodEnded():

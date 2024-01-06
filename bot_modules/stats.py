@@ -36,7 +36,7 @@ async def category_stats(user_id: int) -> str | None:
             expenses[category.name] += bc.value
 
     if any(expenses):
-        return "\n" + "\n" + text.cat_stats(expenses)
+        return "\n" + text.cat_stats(expenses)
     else:
         logging.error("death andjaksndsajknd")
         return None
