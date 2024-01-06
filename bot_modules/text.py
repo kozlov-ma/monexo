@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults
+from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults, PeriodEnded
 
 
 def format_float(f: float) -> str:
@@ -88,22 +88,33 @@ def timezone_must_be_integer() -> str:
 
 
 def settings_saved(autoupdate: bool, timezone: int, budget: float, days_left: int) -> str:
-    return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней, ваш часовой пояс -- Msk {'' if timezone != 0 else ('+' if timezone > 0 else '-')}{timezone}. Ежедневное автообновление включено."
-            f" бюджет на день: <b>{format_float(budget / days_left)}</b>")
+    return (
+        f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней, ваш часовой пояс -- Msk {'' if timezone != 0 else ('+' if timezone > 0 else '-')}{timezone}. Ежедневное автообновление включено."
+        f" бюджет на день: <b>{format_float(budget / days_left)}</b>")
+
 
 def autoupdate_enabled() -> str:
     return f"Автообновление включено"
+
 
 def autoupdate_disabled() -> str:
     return f"Автообновление выключено"
 
 
+def period_ended(p: PeriodEnded) -> str:
+    msg = "<b>Статистика на день:</b>\n"
 
-def period_ended(saved: float) -> str:
-    if saved <= 1e-3:
-        return "Период закончился. Начнём сначала? /settings"
+    if p.income > 0:
+        msg += f"Доходы за сегодня: <b>{format_float(p.income)}</b>\n"
+    if p.expense > 0:
+        msg += f"Расходы за сегодня: <b>{format_float(p.expense)}</b>\n"
+
+    if p.saved <= 1e-3:
+        msg += "Период закончился. Начнём сначала? /settings"
     else:
-        return f"Успех ! Период закончился и удалось сэкономить <b>{format_float(saved)}</b>! Начнём сначала? /settings"
+        msg += f"<b>Успех!</b> Период закончился и удалось сэкономить <b>{format_float(p.saved)}</b>! Начнём сначала? /settings"
+
+    return msg
 
 
 def stats(day_res: DayResults) -> str:
@@ -179,14 +190,17 @@ def cat_stats(expense_by_categories: dict[str, float]) -> str:
 def day_results(day_res: DayResults) -> str:
     msg = "<b>Начался новый день!</b>\n"
     if day_res.income > 0:
-        msg += f"Доходы за день: <b>{format_float(day_res.income)}</b>\n"
+        msg += f"Доходы за сегодня: <b>{format_float(day_res.income)}</b>\n"
     if day_res.expense > 0:
-        msg += f"Расходы за день: <b>{format_float(day_res.expense)}</b>\n"
-    if day_res.saved > 0:
-        msg += f"Удалось сэкономить: <b>{format_float(day_res.saved)}</b>\n"
+        msg += f"Расходы за сегодня: <b>{format_float(day_res.expense)}</b>\n"
 
-    msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget + day_res.new_daily_budget)}</b>\n"
-    msg += f"Бюджет на сегодня: <b>{format_float(day_res.new_daily_budget)}</b>"
+    msg += f"Остаток на сегодня: <b>{format_float(day_res.saved)}</b>\n"
+    msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget)}</b>\n"
+
+    if day_res.expense > 0 or day_res.income > 0:
+        msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
+
+    msg += "\n"
 
     return msg
 

@@ -40,5 +40,7 @@ class DayResults(BudgetChange):
 
 
 @dataclass(frozen=True)
-class PeriodEnded(BudgetChange):
+class PeriodEnded(DayResults):
+    income: float
+    expense: float
     saved: float
