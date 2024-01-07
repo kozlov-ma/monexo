@@ -32,6 +32,7 @@ from bot_modules.settings import settings_router
 from bot_modules.start import start_router
 from bot_modules.stats import stats_router
 from bot_modules.telemetry import telemetry_router
+from bot_modules.cancel import cancel_router
 
 
 load_dotenv(".env")
@@ -59,6 +60,7 @@ async def main() -> None:
     # Register all the routers from bot_modules package
 
     dp.include_routers(
+        cancel_router,
         start_router,
         settings_router,
         autoupdate_router,
@@ -67,7 +69,7 @@ async def main() -> None:
         next_day_router,
         categories_router,
         stats_router,
-        telemetry_router
+        telemetry_router,
     )
 
     now = datetime.now()

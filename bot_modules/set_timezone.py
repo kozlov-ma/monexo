@@ -6,7 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 import domain
 
-from bot_modules import text
+from bot_modules import text, kb
 
 import app
 
@@ -23,7 +23,7 @@ async def command_change_timezone(message: Message, state: FSMContext) -> None:
         return
 
     await state.set_state(TimezoneForm.waiting_for_timezone)
-    await message.answer(text.ask_for_timezone(), )
+    await message.answer(text.ask_for_timezone(), reply_markup=kb.cancel_button())
 
 
 @timezone_router.message(TimezoneForm.waiting_for_timezone)
@@ -40,4 +40,4 @@ async def process_timezone_from_msk(message: Message, state: FSMContext) -> None
         await message.answer(text.current_timezone(timezone))
 
     except:
-        await message.answer(text.timezone_must_be_integer())
+        await message.answer(text.timezone_must_be_integer(), reply_markup=kb.cancel_button())

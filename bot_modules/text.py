@@ -273,6 +273,14 @@ def help_msg() -> str:
 """
 
 
+def cancelled():
+    return "<b>Отменено.</b> Теперь можно пользоваться ботом как обычно"
+
+
+def cancelled_for_callback():
+    return "Отменено"
+
+
 def test_format():
     assert format_float(1.2345) == "1.23"
     assert format_float(1.2) == "1.20"

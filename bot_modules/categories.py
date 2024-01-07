@@ -48,7 +48,7 @@ async def process_categories(message: Message, state: FSMContext) -> None:
 
         new_categories = {c_name.strip() for c_name in message.text.split("\n")}
         if any("_" in c for c in new_categories):
-            await message.answer(text.underscore_in_category_name())
+            await message.answer(text.underscore_in_category_name(), reply_markup=kb.cancel_button())
             return
 
         old_names = {c.name for c in old_categories}
@@ -71,4 +71,4 @@ async def process_categories(message: Message, state: FSMContext) -> None:
         await message.answer(text.categories_set(created_names, (c.name for c in deleted), (c.name for c in unchanged)),
                              reply_markup=kb.change_categories(), parse_mode="HTML")
     except ValueError:
-        await message.answer(text.ask_for_categories())
+        await message.answer(text.ask_for_categories(), reply_markup=kb.cancel_button())

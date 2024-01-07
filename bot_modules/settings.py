@@ -6,7 +6,7 @@ from aiogram.types import (Message, ReplyKeyboardRemove, )
 
 import app
 import domain
-from bot_modules import text
+from bot_modules import text, kb
 
 settings_router = Router()
 
@@ -22,10 +22,10 @@ class SettingsForm(StatesGroup):
 async def command_settings(message: Message, state: FSMContext) -> None:
     if (await app.state.get().tz_repo.get_by_id(message.from_user.id)) is None:
         await state.set_state(SettingsForm.timezone_msk)
-        await message.answer(text.ask_for_timezone(), reply_markup=ReplyKeyboardRemove(), )
+        await message.answer(text.ask_for_timezone(), reply_markup=kb.cancel_button())
     else:
         await state.set_state(SettingsForm.budget)
-        await message.answer(text.ask_for_budget(), reply_markup=ReplyKeyboardRemove(), )
+        await message.answer(text.ask_for_budget(), reply_markup=kb.cancel_button())
 
 
 @settings_router.message(SettingsForm.timezone_msk)
@@ -33,14 +33,14 @@ async def process_timezone_from_msk(message: Message, state: FSMContext) -> None
     try:
         timezone = int(message.text)
         if abs(timezone) > 24:
-            await message.answer(text.timezone_must_be_integer())
+            await message.answer(text.timezone_must_be_integer(), reply_markup=kb.cancel_button())
             return
         await state.update_data(timezone_msk=timezone)
         await state.update_data(is_updatable=True)
         await state.set_state(SettingsForm.budget)
-        await message.answer(text.ask_for_budget())
+        await message.answer(text.ask_for_budget(), reply_markup=kb.cancel_button())
     except:
-        await message.answer(text.timezone_must_be_integer())
+        await message.answer(text.timezone_must_be_integer(), reply_markup=kb.cancel_button())
 
 
 @settings_router.message(SettingsForm.budget)
@@ -50,13 +50,13 @@ async def process_budget(message: Message, state: FSMContext) -> None:
         if budget <= 0:
             await message.answer(text.budget_must_be_positive(budget))
             return
-        if len(message.text) >= 5:
-            await message.answer(text.big_numbers_format_hint())
+        # if len(message.text) >= 5:
+            # await message.answer(text.big_numbers_format_hint())
         await state.update_data(budget=budget)
         await state.set_state(SettingsForm.days_left)
-        await message.answer(text.ask_for_days_left())
+        await message.answer(text.ask_for_days_left(), reply_markup=kb.cancel_button())
     except ValueError:
-        await message.answer(text.budget_must_be_float())
+        await message.answer(text.budget_must_be_float(), reply_markup=kb.cancel_button())
 
 
 @settings_router.message(SettingsForm.days_left)
@@ -64,7 +64,7 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
     try:
         days_left = int(message.text)
         if days_left <= 0:
-            await message.answer(text.days_left_must_be_positive(days_left))
+            await message.answer(text.days_left_must_be_positive(days_left), reply_markup=kb.cancel_button())
             return
 
         await state.update_data(days_left=days_left)
@@ -91,4 +91,4 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
             await message.answer(text.settings_saved(budget=data["budget"],
                                                      days_left=data["days_left"]))
     except ValueError:
-        await message.answer(text.days_left_must_be_int())
+        await message.answer(text.days_left_must_be_int(), reply_markup=kb.cancel_button())
