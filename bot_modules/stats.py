@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 from aiogram import Router
@@ -20,7 +21,7 @@ async def command_stats(message: Message) -> None:
         stats_text = text.stats(stats)
         cat_stats = await category_stats(sender)
         if cat_stats is not None:
-            stats_text += "\n" + cat_stats
+            stats_text += cat_stats
 
         await message.answer(stats_text)
 
@@ -35,6 +36,7 @@ async def category_stats(user_id: int) -> str | None:
             expenses[category.name] += bc.value
 
     if any(expenses):
-        return text.cat_stats(expenses)
+        return "\n" + text.cat_stats(expenses)
     else:
+        logging.error("death andjaksndsajknd")
         return None

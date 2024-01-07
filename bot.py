@@ -55,7 +55,6 @@ async def main() -> None:
     app.state.init(admin_usernames=admins, users_repo=domain.user_repository(),
                    bc_repo=domain.budget_change_repository(), tz_repo=domain.user_timezone_info_repository())
 
-
     dp = Dispatcher()
     # Register all the routers from bot_modules package
 

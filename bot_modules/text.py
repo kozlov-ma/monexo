@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults
+from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults, PeriodEnded
 
 
 def format_float(f: float) -> str:
@@ -42,9 +42,11 @@ def spent_over_daily_budget(spent: SpentOverDailyBudget) -> str:
 
 
 def spent_all_budget(spent: SpentAllBudget) -> str:
-    return (f"Потрачено <b>{format_float(spent.amount)}</b>."
-            f" Больше денег нет. Добавьте средства к текущему бюджету через +СУММА"
-            f" или измените его с помощью /settings")
+    return (f"Потрачено <b>{format_float(spent.amount)}</b>." + no_more_money())
+
+
+def no_more_money() -> str:
+    return f"<b>Больше денег нет.</b> Добавьте средства к текущему бюджету через +СУММА или измените его с помощью /settings"
 
 
 def ask_for_budget() -> str:
@@ -86,42 +88,18 @@ def ask_for_timezone() -> str:
 def timezone_must_be_integer() -> str:
     return f"Часовой пояс должен быть целым числом и не может превосходить 24 по модулю."
 
-
+  
 def settings_saved(budget: float, days_left: int) -> str:
     return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней."
             f"Бюджет на день: <b>{format_float(budget / days_left)}</b>")
+  
 
 def autoupdate_enabled() -> str:
     return f"Автообновление включено"
 
+
 def autoupdate_disabled() -> str:
     return f"Автообновление выключено"
-
-
-
-def period_ended(saved: float) -> str:
-    if saved <= 1e-3:
-        return "Период закончился. Начнём сначала? /settings"
-    else:
-        return f"Успех ! Период закончился и удалось сэкономить <b>{format_float(saved)}</b>! Начнём сначала? /settings"
-
-
-def stats(day_res: DayResults) -> str:
-    msg = "<b>Статистика на день:</b>\n"
-    if day_res.income > 0:
-        msg += f"Доходы за сегодня: <b>{format_float(day_res.income)}</b>\n"
-    if day_res.expense > 0:
-        msg += f"Расходы за сегодня: <b>{format_float(day_res.expense)}</b>\n"
-
-    msg += f"Остаток на сегодня: <b>{format_float(day_res.saved)}</b>\n"
-    msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget)}</b>\n"
-
-    if day_res.expense > 0 or day_res.income > 0:
-        msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
-
-    msg += "\n"
-
-    return msg
 
 
 def too_many_categories() -> str:
@@ -176,17 +154,76 @@ def cat_stats(expense_by_categories: dict[str, float]) -> str:
     return msg
 
 
+def stats(day_res: DayResults) -> str:
+    msg = "<b>Статистика на день:</b>\n"
+    add_line = False
+    if day_res.income > 0:
+        msg += f"Доходы за сегодня: <b>{format_float(day_res.income)}</b>\n"
+        add_line = True
+    if day_res.expense > 0:
+        msg += f"Расходы за сегодня: <b>{format_float(day_res.expense)}</b>\n"
+        add_line = True
+    if add_line:
+        msg += "\n"
+
+    if day_res.saved >= 1e-2 or day_res.new_remaining_budget >= 1e-2:
+        msg += f"Остаток на сегодня: <b>{format_float(day_res.saved)}</b>\n"
+        if day_res.new_days_left > 1:
+            msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget)}</b>\n"
+    else:
+        msg += no_more_money()
+
+    msg += "\n"
+
+    if (day_res.expense > 0 or day_res.income > 0) and day_res.new_daily_budget >= 1e-2:
+        msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
+        msg += "\n"
+
+    return msg
+
+
 def day_results(day_res: DayResults) -> str:
     msg = "<b>Начался новый день!</b>\n"
+
+    add_line = False
     if day_res.income > 0:
-        msg += f"Доходы за день: <b>{format_float(day_res.income)}</b>\n"
+        msg += f"Доходы за вчера: <b>{format_float(day_res.income)}</b>\n"
+        add_line = True
     if day_res.expense > 0:
-        msg += f"Расходы за день: <b>{format_float(day_res.expense)}</b>\n"
+        msg += f"Расходы за вчера: <b>{format_float(day_res.expense)}</b>\n"
+        add_line = True
     if day_res.saved > 0:
         msg += f"Удалось сэкономить: <b>{format_float(day_res.saved)}</b>\n"
+        add_line = True
+    if add_line:
+        msg += "\n"
 
-    msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget + day_res.new_daily_budget)}</b>\n"
-    msg += f"Бюджет на сегодня: <b>{format_float(day_res.new_daily_budget)}</b>"
+    if day_res.new_days_left > 1:
+        msg += f"Остаток на <b>{format_float(day_res.new_days_left)}</b> дней: <b>{format_float(day_res.new_remaining_budget + day_res.new_daily_budget)}</b>\n"
+
+    if day_res.new_daily_budget >= 1e-2:
+        msg += f"Бюджет на сегодня: <b>{format_float(day_res.new_daily_budget)}</b>"
+    else:
+        msg += no_more_money()
+
+    msg += "\n"
+
+    return msg
+
+
+def period_ended(p: PeriodEnded) -> str:
+    msg = "<b>Статистика на день:</b>\n"
+
+    if p.income > 0:
+        msg += f"Доходы за сегодня: <b>{format_float(p.income)}</b>\n"
+    if p.expense > 0:
+        msg += f"Расходы за сегодня: <b>{format_float(p.expense)}</b>\n"
+
+    msg += "\n"
+    if p.saved <= 1e-3:
+        msg += "<b>Период закончился.</b> Начнём сначала? /settings"
+    else:
+        msg += f"<b>Успех!</b> Период закончился и удалось сэкономить <b>{format_float(p.saved)}</b>! Начнём сначала? /settings"
 
     return msg
 

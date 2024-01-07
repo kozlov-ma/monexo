@@ -8,7 +8,9 @@ from aiogram.types import Message
 from option import Option, Some, NONE
 
 import app
+from app import state
 from bot_modules import text
+from bot_modules import stats
 
 next_day_router = Router()
 
@@ -28,16 +30,22 @@ async def _next_day(user_id: int) -> Option[str]:
     if user is None:
         return Some(text.must_have_settings_first())
 
+    cat_stats = await stats.category_stats(user.id)
     result = (await app.budget.apply_today(user.id)).unwrap_or(None)
     if result is None:
         return NONE
 
     match result:
-        case app.PeriodEnded(saved=float(s)):
-            msg = text.period_ended(s)
-            await SendMessage(chat_id=user_id, text=msg)
+        case app.PeriodEnded():
+            msg = text.period_ended(result)
+            if cat_stats is not None:
+                msg += cat_stats
+            return Some(msg)
         case app.DayResults():
-            return Some(text.day_results(result))
+            msg = text.day_results(result)
+            if cat_stats is not None:
+                msg += cat_stats
+            return Some(msg)
         case _:
             logging.error(f"Unknown result type for 'app.budget.apply_today()': {type(result)}, result: {result}")
             return NONE

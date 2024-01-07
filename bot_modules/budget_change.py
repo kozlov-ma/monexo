@@ -98,15 +98,21 @@ async def budget_change_callback(cq: CallbackQuery) -> None:
         msg_id = cq.message.message_id
         old_bc = await app.state.get().bc_repo.get_budget_changes_by_message_id(msg_id)
         if old_bc.is_some:
-            new_bc = replace(old_bc.unwrap(), category_id=cat_id)
+            old_bc = old_bc.unwrap()
+            if old_bc.category_id == cat_id:
+                new_bc = replace(old_bc, category_id=None)
+            else:
+                new_bc = replace(old_bc, category_id=cat_id)
         else:
+            await cq.message.edit_reply_markup(reply_markup=None)
+            await cq.answer("Нельзя выбрать категорию для этой траты")
             return
 
-        await app.state.get().bc_repo.remove_budget_change_by_id(old_bc.unwrap().id) #FIXME BUDGETCHANGE
-        await app.state.get().bc_repo.add_budget_change(new_bc) #FIXME BUDGETCHANGE
+        await app.state.get().bc_repo.update_budget_change_category(old_bc.id, cat_id)
 
-        new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.unwrap().value) #FIXME BUDGETCHANGE
+        new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.value) #FIXME BUDGETCHANGE
         await cq.message.edit_reply_markup(reply_markup=new_kb)
+        await cq.answer("Успех")
 
     except Exception as e:
         await cq.answer("Произошла ошибка..")

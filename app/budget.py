@@ -97,7 +97,7 @@ async def apply_today(
 
     if new_days_left == 0:
         await state.get().users_repo.remove_user_by_id(user.id)  # FIXME result
-        return Ok(PeriodEnded(saved))
+        return Ok(PeriodEnded(income, expense, saved))
 
     new_remaining_budget = user.remaining_budget + saved
     new_day_budget = new_remaining_budget / new_days_left
