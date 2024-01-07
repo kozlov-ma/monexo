@@ -17,4 +17,5 @@ async def command_cancel(message: Message, state: FSMContext) -> None:
 @cancel_router.callback_query(lambda c: c.data == "cancel")
 async def callback_cancel(cq: CallbackQuery, state: FSMContext) -> None:
     await state.clear()
+    await cq.message.delete()
     await cq.answer(text.cancelled_for_callback())
