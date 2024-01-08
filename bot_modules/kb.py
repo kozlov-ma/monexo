@@ -34,6 +34,17 @@ async def categories_for_expense(user_id: int, message_id: int, value: float) ->
     return InlineKeyboardMarkup(inline_keyboard=[[b] for b in buttons])
 
 
+def settings():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Изменить бюджет", callback_data="change_budget")],
+            [InlineKeyboardButton(text="Изменить количество дней", callback_data="change_days_left")],
+            [InlineKeyboardButton(text="Изменить часовой пояс", callback_data="change_timezone")],
+            [InlineKeyboardButton(text="Изменить категории", callback_data="change_categories")]
+        ]
+    )
+
+
 def cancel_button() -> InlineKeyboardMarkup:
     btn = InlineKeyboardButton(text="Отменить", callback_data="cancel")
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[btn]])

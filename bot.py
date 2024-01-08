@@ -30,11 +30,11 @@ from datetime import datetime, timedelta
 import time
 from pytz import timezone
 
-from bot_modules.settings import settings_router
 from bot_modules.start import start_router
 from bot_modules.stats import stats_router
 from bot_modules.telemetry import telemetry_router
 from bot_modules.cancel import cancel_router
+from bot_modules.settings import settings_router
 
 
 load_dotenv(".env")

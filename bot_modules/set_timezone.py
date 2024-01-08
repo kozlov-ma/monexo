@@ -15,10 +15,9 @@ class TimezoneForm(StatesGroup):
     waiting_for_timezone = State()
 
 
-
 @timezone_router.message(Command("timezone"))
 async def command_change_timezone(message: Message, state: FSMContext) -> None:
-    if (await app.state.get().tz_repo.get_by_id(message.from_user.id)) is None:
+    if (await app.state.get().tz_repo.get_by_id(message.from_user.id)).unwrap_or(None) is None:
         await message.answer(text.must_have_settings_first())
         return
 

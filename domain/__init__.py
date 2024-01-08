@@ -3,6 +3,7 @@ import logging
 from domain.models.user import User
 from domain.models.user_timezone_info import UserTimezoneInfo
 from domain.models.budget_change import BudgetChange
+from domain.models.category import Category
 from domain.repositories.user_repository import UserRepository
 from domain.models.db_base import Base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
