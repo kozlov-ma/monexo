@@ -87,7 +87,7 @@ async def process_days_left_step(message: Message, state: FSMContext) -> None:
             return
         if days_left >= 1000:
             await message.answer("Выберите срок менее <b>1000</b> дней")
-            return 
+            return
 
         await state.update_data(days_left=days_left)
 
@@ -191,7 +191,7 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
         if days_left >= 1000:
             await message.answer("Выберите срок менее <b>1000</b> дней")
             return
-        
+
         user = (await app.state.get().users_repo.get_by_id(sender)).unwrap_or(None)
         if user is None:
             logging.error(f"User {sender} is not exists")
@@ -221,7 +221,7 @@ async def process_timezone_from_msk(message: Message, state: FSMContext) -> None
     try:
         sender = message.from_user.id
         timezone = int(message.text)
-        if abs(timezone) > 24:
+        if abs(timezone) >= 24:
             await message.answer(text.timezone_must_be_integer(), reply_markup=kb.cancel_button())
             return
 
