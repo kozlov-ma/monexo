@@ -25,8 +25,7 @@ async def init_db(db_url: str) -> None:
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
 
-    Session = async_sessionmaker(bind=engine)
-    session = Session()
+    session = AsyncSession(engine)
     __user_repository = UserRepository(session)
     __user_timezone_info_repository = UserTimezoneInfoRepository(session)
     __budget_change_repository = BudgetChangeRepository(session)

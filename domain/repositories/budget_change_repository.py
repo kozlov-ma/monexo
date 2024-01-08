@@ -199,7 +199,7 @@ class PostgresBudgetChangeRepository(BudgetChangeRepositoryBase):
             return Err(KeyError(f"User with id {budget_change.id} already exists"))
 
         self.session.add(DbBudgetChange.from_budget_change(budget_change))
-        # await self.session.commit()
+        await self.session.commit()
         return Ok(None)
 
     async def remove_budget_change_by_id(self, budget_change_id: int) -> Option[BudgetChange]:
