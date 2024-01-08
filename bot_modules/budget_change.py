@@ -25,6 +25,7 @@ async def budget_change(message: Message) -> None:
     if len(message.text) >= 200:
         await message.answer("<b>Сообщение слишком длинное.</b>")
     try:
+        assert MATH_REGEX.match(message.text.replace("_", ""))
         result = eval(message.text.replace("_", ""))
     except Exception as e:
         await message.answer(text.arithmetic_error(message.text), parse_mode="HTML")
