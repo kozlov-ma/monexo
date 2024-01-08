@@ -40,12 +40,12 @@ async def budget_change(message: Message) -> None:
             await message.answer(text.must_have_settings_first(), parse_mode="HTML")
             return
         msg = await message.answer(text.added_money(change), parse_mode="HTML")
-        bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap_or(None)#FIXME BUDGETCHANGE
+        bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap_or(None)  # FIXME BUDGETCHANGE
 
         if bc is None:
             return
 
-        await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
+        await app.state.get().bc_repo.add_budget_change(bc)  # FIXME BUDGETCHANGE
     else:
         if not SINGLE_OPERAND_REGEX.match(message.text) and result < 0:
             await message.answer(text.cannot_enter_negative_sum(result), parse_mode="HTML")
@@ -55,26 +55,32 @@ async def budget_change(message: Message) -> None:
             match change:
                 case app.Spent():
                     expense_categories = await kb.categories_for_expense(sender_id, message.message_id, change.amount)
-                    msg = await message.answer(text.spent_money(change), parse_mode="HTML", reply_markup=expense_categories)
-                    bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()#FIXME BUDGETCHANGE
-                    await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
+                    msg = await message.answer(text.spent_money(change), parse_mode="HTML",
+                                               reply_markup=expense_categories)
+                    bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()  # FIXME BUDGETCHANGE
+                    await app.state.get().bc_repo.add_budget_change(bc)  # FIXME BUDGETCHANGE
                 case app.SpentOverDailyBudget():
                     expense_categories = await kb.categories_for_expense(sender_id, message.message_id, change.amount)
-                    msg = await message.answer(text.spent_over_daily_budget(change), parse_mode="HTML", reply_markup=expense_categories)
-                    bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()#FIXME BUDGETCHANGE
-                    await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
+                    msg = await message.answer(text.spent_over_daily_budget(change), parse_mode="HTML",
+                                               reply_markup=expense_categories)
+                    bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()  # FIXME BUDGETCHANGE
+                    await app.state.get().bc_repo.add_budget_change(bc)  # FIXME BUDGETCHANGE
                 case app.SpentAllBudget():
                     expense_categories = await kb.categories_for_expense(sender_id, message.message_id, change.amount)
-                    msg = await message.answer(text.spent_all_budget(change), parse_mode="HTML", reply_markup=expense_categories)
-                    bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()#FIXME BUDGETCHANGE
-                    await app.state.get().bc_repo.add_budget_change(bc)#FIXME BUDGETCHANGE
+                    msg = await message.answer(text.spent_all_budget(change), parse_mode="HTML",
+                                               reply_markup=expense_categories)
+                    bc = (await app_bc_to_domain_bc(sender_id, msg.message_id, change)).unwrap()  # FIXME BUDGETCHANGE
+                    await app.state.get().bc_repo.add_budget_change(bc)  # FIXME BUDGETCHANGE
                 case None:
                     await message.answer(text.must_have_settings_first(), parse_mode="HTML")
+                    return
                 case _:
                     raise ValueError(f"Unknown change type: {type(change)}")
+            app.state.get().telemetry.int_values["Expenses tracked"] += 1
 
 
-async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChange) -> Option[domain.BudgetChange]: #FIXME BUDGETCHANGE
+async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChange) -> Option[
+    domain.BudgetChange]:  # FIXME BUDGETCHANGE
     cat_id = None
     match app_bc:
         case app.Spent(amount, _):
@@ -90,10 +96,11 @@ async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChang
     return option.Some(domain.BudgetChange(id, user_id, cat_id, msg_id, value))
 
 
-@budget_change_router.callback_query(lambda c: c.data.split("_")[0] == "bc" and len(c.data.split("_")) == 2) #FIXME BUDGETCHANGE
+@budget_change_router.callback_query(
+    lambda c: c.data.split("_")[0] == "bc" and len(c.data.split("_")) == 2)  # FIXME BUDGETCHANGE
 async def budget_change_callback(cq: CallbackQuery) -> None:
     try:
-        _, cat_id = cq.data.split("_") #FIXME BUDGETCHANGE
+        _, cat_id = cq.data.split("_")  # FIXME BUDGETCHANGE
         cat_id = int(cat_id)
         msg_id = cq.message.message_id
         old_bc = await app.state.get().bc_repo.get_budget_changes_by_message_id(msg_id)
@@ -110,9 +117,11 @@ async def budget_change_callback(cq: CallbackQuery) -> None:
 
         await app.state.get().bc_repo.update_budget_change_category(old_bc.id, cat_id)
 
-        new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.value) #FIXME BUDGETCHANGE
+        new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.value)  # FIXME BUDGETCHANGE
         await cq.message.edit_reply_markup(reply_markup=new_kb)
         await cq.answer("Успех")
+
+        app.state.get().telemetry.int_values["Category used"] += 1
 
     except Exception as e:
         await cq.answer("Произошла ошибка..")

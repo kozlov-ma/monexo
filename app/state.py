@@ -3,6 +3,7 @@ import enum
 from dataclasses import dataclass
 from functools import cache
 
+from app.telemetry import TelemetryData
 from domain.models.user import User
 from domain.repositories.budget_change_repository import BudgetChangeRepositoryBase
 from domain.repositories.user_repository import UserRepositoryBase
@@ -22,6 +23,7 @@ class ApplicationState:
     users_repo: UserRepositoryBase = None
     bc_repo: BudgetChangeRepositoryBase = None
     tz_repo: UserTimezoneInfoRepositoryBase = None
+    telemetry: TelemetryData = dataclasses.field(default_factory=TelemetryData)
 
 
 _state_instance: ApplicationState | None = None

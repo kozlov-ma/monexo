@@ -71,5 +71,7 @@ async def process_categories(message: Message, state: FSMContext) -> None:
 
         await message.answer(text.categories_set(created_names, (c.name for c in deleted), (c.name for c in unchanged)),
                              reply_markup=kb.change_categories(), parse_mode="HTML")
+
+        app.state.get().telemetry.int_values["Categories users"] += 1
     except ValueError:
         await message.answer(text.ask_for_categories(), reply_markup=kb.cancel_button())

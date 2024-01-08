@@ -21,6 +21,7 @@ async def command_next_day(message: Message) -> None:
     msg = await _next_day(sender)
     if msg.is_some:
         await message.answer(msg.unwrap())
+        app.state.get().telemetry.int_values["NextDay command used"] += 1
     else:
         await message.answer("Произошла ошибка..")
 

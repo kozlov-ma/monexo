@@ -51,7 +51,7 @@ async def process_budget(message: Message, state: FSMContext) -> None:
             await message.answer(text.budget_must_be_positive(budget))
             return
         # if len(message.text) >= 5:
-            # await message.answer(text.big_numbers_format_hint())
+        # await message.answer(text.big_numbers_format_hint())
         await state.update_data(budget=budget)
         await state.set_state(SettingsForm.days_left)
         await message.answer(text.ask_for_days_left(), reply_markup=kb.cancel_button())
@@ -80,7 +80,8 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
         await app.state.get().bc_repo.remove_all_budget_changes_by_tg_id(user.id)
 
         if "timezone_msk" in data.keys():
-            timezone_user = domain.UserTimezoneInfo(user_id=message.from_user.id, timezone=data["timezone_msk"], is_updatable=data["is_updatable"])
+            timezone_user = domain.UserTimezoneInfo(user_id=message.from_user.id, timezone=data["timezone_msk"],
+                                                    is_updatable=data["is_updatable"])
             await app.state.get().tz_repo.add_or_update(timezone_user)
 
             await message.answer(text.settings_with_time_saved(autoupdate=data["is_updatable"],
@@ -90,5 +91,7 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
         else:
             await message.answer(text.settings_saved(budget=data["budget"],
                                                      days_left=data["days_left"]))
+
+        app.state.get().telemetry.int_values["Total users"] += 1
     except ValueError:
         await message.answer(text.days_left_must_be_int(), reply_markup=kb.cancel_button())

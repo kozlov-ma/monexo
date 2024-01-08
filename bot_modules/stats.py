@@ -24,6 +24,7 @@ async def command_stats(message: Message) -> None:
             stats_text += cat_stats
 
         await message.answer(stats_text)
+        app.state.get().telemetry.int_values["Stats used"] += 1
 
 
 async def category_stats(user_id: int) -> str | None:

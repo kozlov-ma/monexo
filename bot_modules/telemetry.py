@@ -26,3 +26,4 @@ async def command_stats(message: Message) -> None:
     avg_budget /= n_active_users
 
     await message.answer(text.telemetry(n_active_users, n_categories_users, avg_budget))
+    await message.answer(str(app.state.get().telemetry))
