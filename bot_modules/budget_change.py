@@ -22,6 +22,8 @@ SINGLE_OPERAND_REGEX = re.compile(f"^[+\-]\d+$", re.A)
 @budget_change_router.message()
 async def budget_change(message: Message) -> None:
     sender_id = message.from_user.id
+    if len(message.text) >= 200:
+        await message.answer("<b>Сообщение слишком длинное.</b>")
     try:
         result = eval(message.text.replace("_", ""))
     except Exception as e:

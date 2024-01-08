@@ -42,7 +42,7 @@ async def command_settings(message: Message, state: FSMContext) -> None:
             await message.answer(text.ask_for_budget(), reply_markup=kb.cancel_button())
         return
 
-    app.state.get().telemetry.int_values["Total users"] += 1
+    app.state.get().telemetry.int_values["Settings used"] += 1
     await message.answer(await get_settings_message(sender), reply_markup=kb.settings())
 
 
@@ -68,8 +68,9 @@ async def process_budget_step(message: Message, state: FSMContext) -> None:
         if budget <= 0:
             await message.answer(text.budget_must_be_positive(budget))
             return
-        # if len(message.text) >= 5:
-        # await message.answer(text.big_numbers_format_hint())
+        if budget >= 1_000_000_000:
+            await message.answer(text.budget_too_big(budget))
+            return
         await state.update_data(budget=budget)
         await state.set_state(SettingsForm.days_left_step)
         await message.answer(text.ask_for_days_left(), reply_markup=kb.cancel_button())
@@ -84,6 +85,9 @@ async def process_days_left_step(message: Message, state: FSMContext) -> None:
         if days_left <= 0:
             await message.answer(text.days_left_must_be_positive(days_left), reply_markup=kb.cancel_button())
             return
+        if days_left >= 1000:
+            await message.answer("Можно указать не более <b>1000</b> дней")
+            return 
 
         await state.update_data(days_left=days_left)
 
