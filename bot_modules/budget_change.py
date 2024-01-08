@@ -19,7 +19,7 @@ MATH_REGEX = re.compile(r"^[+\-\d](\s?[-+/*]?\s?[._\d]+\s?(\._\d+)?)*$", re.A)
 SINGLE_OPERAND_REGEX = re.compile(f"^[+\-]\d+$", re.A)
 
 
-@budget_change_router.message(F.text.regexp(MATH_REGEX))
+@budget_change_router.message()
 async def budget_change(message: Message) -> None:
     sender_id = message.from_user.id
     try:

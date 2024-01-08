@@ -65,11 +65,11 @@ async def main() -> None:
         settings_router,
         autoupdate_router,
         timezone_router,
-        budget_change_router,
         next_day_router,
         categories_router,
         stats_router,
         telemetry_router,
+        budget_change_router,
     )
 
     now = datetime.now()
