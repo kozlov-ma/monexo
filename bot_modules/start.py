@@ -74,7 +74,7 @@ async def command_help(message: Message) -> None:
 async def command_start(message: Message, state: FSMContext):
     sender = message.from_user.id
     await state.clear()
-    msg = await message.answer(introduction(), reply_markup=begin_tutorial_kb())
+    msg = await message.answer(introduction())
     await msg.reply(
         "<b>Начнём с бюджета.</b> Подумайте, сколько денег вы хотите потратить (например, <b>1000</b>) и отправьте это число боту:")
     await state.set_state(StartForm.budget)

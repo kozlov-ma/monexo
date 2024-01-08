@@ -94,7 +94,7 @@ async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChang
         case _:
             return Option.NONE()
 
-    id = uuid.uuid4().int % 2 ** 31
+    id = uuid.uuid4().int % (2 ** 31)
     return option.Some(domain.BudgetChange(id, user_id, cat_id, msg_id, value))
 
 
