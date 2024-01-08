@@ -49,7 +49,7 @@ def spent_all_budget(spent: SpentAllBudget) -> str:
 
 
 def no_more_money() -> str:
-    return f"<b>Больше денег нет.</b> Добавьте средства к текущему бюджету через +СУММА или измените его с помощью /settings"
+    return f"<b>Больше денег нет.</b> Добавьте средства к текущему бюджету через +СУММА (например, <b>+100</b>) или измените его с помощью /settings"
 
 
 def ask_for_budget() -> str:
