@@ -182,7 +182,7 @@ async def process_categories(message: Message, state: FSMContext) -> None:
             await app.state.get().bc_repo.remove_category_by_id(c.id)
 
         for c_name in created_names:
-            new_cat = domain.Category(uuid.uuid4().int % 2 ** 31, sender,
+            new_cat = domain.Category(uuid.uuid4().node % 2 ** 31, sender,
                                       c_name)  # FIXME Саня сделай получение id
             await app.state.get().bc_repo.add_category(new_cat)
 
@@ -200,6 +200,7 @@ async def process_categories(message: Message, state: FSMContext) -> None:
             days_left = data["days_left"]
             await save_user(id, budget, days_left)
             await message.answer(settings_finished())
+            await state.clear()
             app.state.get().telemetry.int_values["Start used"] += 1
         except Exception as e:
             logging.exception(e)
