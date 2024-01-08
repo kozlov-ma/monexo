@@ -37,7 +37,7 @@ class DbBudgetChange(Base):
 
     @staticmethod
     def from_budget_change(budget_change: BudgetChange) -> DbBudgetChange:
-        return DbBudgetChange(id=budget_change.id, user_telegram_id=budget_change.user_id,
+        return DbBudgetChange(user_telegram_id=budget_change.user_id,
                               category_id=budget_change.category_id, message_telegram_id=budget_change.message_id,
                               value=budget_change.value)
 
