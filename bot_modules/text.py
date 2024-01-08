@@ -8,7 +8,9 @@ def format_float(f: float) -> str:
 
 
 def arithmetic_error(expr: str) -> str:
-    return f"Выражение <b>{expr}</b> содержит ошибку и не может быть вычислено"
+    if '\n' in expr:
+        return f"Выражение\n\n<b>{expr}</b>\n\nсодержит ошибку и не может быть вычислено."
+    return f"Выражение <b>{expr}</b> содержит ошибку и не может быть вычислено."
 
 
 def cannot_spend_zero_sum() -> str:
