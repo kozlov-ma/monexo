@@ -4,6 +4,7 @@ import re
 import uuid
 from dataclasses import replace
 
+import loguru
 import option
 from aiogram import F, Router
 from aiogram.types import (Message, CallbackQuery, )
@@ -34,7 +35,7 @@ async def budget_change(message: Message) -> None:
     amount = abs(result)
     if abs(result) > 55_000_000:
         await message.answer(f"Введено слишком большое число, введите не более <b>{text.format_float(50_000_000)}</b>")
-        return 
+        return
 
     if abs(result) <= 1e-3:
         await message.answer(text.cannot_spend_zero_sum(), parse_mode="HTML")
@@ -84,7 +85,6 @@ async def budget_change(message: Message) -> None:
                     raise ValueError(f"Unknown change type: {type(change)}")
             app.state.get().telemetry.int_values["Expenses tracked"] += 1
 
-
 async def app_bc_to_domain_bc(user_id: int, msg_id: int, app_bc: app.BudgetChange) -> Option[
     domain.BudgetChange]:  # FIXME BUDGETCHANGE
     cat_id = None
@@ -120,7 +120,7 @@ async def budget_change_callback(cq: CallbackQuery) -> None:
             await cq.answer("Нельзя выбрать категорию для этой траты")
             return
 
-        await app.state.get().bc_repo.update_budget_change_category(old_bc.id, cat_id)
+        await app.state.get().bc_repo.update_budget_change(new_bc)
 
         new_kb = await kb.categories_for_expense(cq.from_user.id, msg_id, old_bc.value)  # FIXME BUDGETCHANGE
         await cq.message.edit_reply_markup(reply_markup=new_kb)
