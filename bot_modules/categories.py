@@ -31,6 +31,7 @@ async def categories(message: Message) -> None:
 @categories_router.callback_query(lambda c: c.data == "change_categories")
 async def change_categories(callback_query: CallbackQuery, state: FSMContext):
     await state.set_state(CategoriesForm.categories)
+    await callback_query.answer()
     await bot_modules.bot().send_message(callback_query.from_user.id, text.ask_for_categories(), reply_markup=kb.cancel_button())
 
 
