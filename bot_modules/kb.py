@@ -39,3 +39,23 @@ def cancel_button() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 
     return keyboard
+
+
+def stop_keyboard() -> InlineKeyboardMarkup:
+    functionality_useless = InlineKeyboardButton(text="Функции мне не подходят", callback_data="stop_useless")
+    inconvenient = InlineKeyboardButton(text="Ботом неудобно пользоваться", callback_data="stop_inconvenient")
+    lack_of_functionality = InlineKeyboardButton(text="Нет нужных мне функций",
+                                                 callback_data="stop_lacks_functionality")
+    competition = InlineKeyboardButton(text="Другой бот/приложение лучше", callback_data="stop_competition")
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[functionality_useless], [inconvenient], [lack_of_functionality], [competition]])
+    return keyboard
+
+
+def confirm_stop() -> InlineKeyboardMarkup:
+    stop_request = InlineKeyboardButton(text="Да, выключить бота", callback_data="rstop_request")
+    cancel = InlineKeyboardButton(text="Нет, отменить", callback_data="cancel")
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[stop_request], [cancel]])
+    return keyboard

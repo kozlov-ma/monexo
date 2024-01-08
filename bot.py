@@ -19,6 +19,8 @@ from bot_modules.set_timezone import timezone_router
 
 from bot_modules.toggle_autoupdate import autoupdate_router
 
+from bot_modules.stop import stop_router
+
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 
@@ -62,6 +64,7 @@ async def main() -> None:
     dp.include_routers(
         cancel_router,
         start_router,
+        stop_router,
         settings_router,
         autoupdate_router,
         timezone_router,

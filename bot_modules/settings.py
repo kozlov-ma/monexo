@@ -20,6 +20,7 @@ class SettingsForm(StatesGroup):
 
 @settings_router.message(Command("settings"))
 async def command_settings(message: Message, state: FSMContext) -> None:
+    await state.clear()
     if (await app.state.get().tz_repo.get_by_id(message.from_user.id)) is None:
         await state.set_state(SettingsForm.timezone_msk)
         await message.answer(text.ask_for_timezone(), reply_markup=kb.cancel_button())
