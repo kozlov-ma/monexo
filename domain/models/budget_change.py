@@ -23,7 +23,7 @@ class BudgetChange:
 class DbBudgetChange(Base):
     __tablename__ = "budget_changes"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     user_telegram_id: Mapped[int] = mapped_column(Integer)
     category_id: Mapped[int] = mapped_column(Integer, nullable=True)
