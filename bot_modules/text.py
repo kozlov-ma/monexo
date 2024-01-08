@@ -97,7 +97,7 @@ def timezone_must_be_integer() -> str:
 
 
 def settings_saved(budget: float, days_left: int) -> str:
-    return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней."
+    return (f"Отлично! Осталось <b>{format_float(budget)}</b> на <b>{days_left}</b> дней. "
             f"Бюджет на день: <b>{format_float(budget / days_left)}</b>")
 
 
