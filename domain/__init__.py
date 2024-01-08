@@ -6,7 +6,7 @@ from domain.models.budget_change import BudgetChange
 from domain.models.category import Category
 from domain.repositories.user_repository import UserRepository
 from domain.models.db_base import Base
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from domain.repositories.user_timezone_info_repository import UserTimezoneInfoRepository
 from domain.repositories.budget_change_repository import BudgetChangeRepository
 
@@ -25,7 +25,8 @@ async def init_db(db_url: str) -> None:
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
 
-    session = AsyncSession(engine)
+    Session = async_sessionmaker(bind=engine)
+    session = Session()
     __user_repository = UserRepository(session)
     __user_timezone_info_repository = UserTimezoneInfoRepository(session)
     __budget_change_repository = BudgetChangeRepository(session)
