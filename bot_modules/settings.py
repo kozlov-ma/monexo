@@ -188,7 +188,10 @@ async def process_days_left(message: Message, state: FSMContext) -> None:
         if days_left <= 0:
             await message.answer(text.days_left_must_be_positive(days_left), reply_markup=kb.cancel_button())
             return
-
+        if days_left >= 1000:
+            await message.answer("Выберите срок менее <b>1000</b> дней")
+            return
+        
         user = (await app.state.get().users_repo.get_by_id(sender)).unwrap_or(None)
         if user is None:
             logging.error(f"User {sender} is not exists")
