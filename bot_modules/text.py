@@ -41,7 +41,7 @@ def spent_money(spent: Spent) -> str:
 def spent_over_daily_budget(spent: SpentOverDailyBudget) -> str:
     return (f"Потрачено <b>{format_float(spent.amount)}</b>."
             f" Остаток на сегодня: <b>{0}</b>."
-            f" Теперь новый бюджет на день: <b>{format_float(spent.new_daily_budget)}</b>.")
+            f" Теперь новый дневной бюджет: <b>{format_float(spent.new_daily_budget)}</b>.")
 
 
 def spent_all_budget(spent: SpentAllBudget) -> str:
@@ -212,7 +212,7 @@ def stats(day_res: DayResults) -> str:
     msg += "\n"
 
     if (day_res.expense > 0 or day_res.income > 0) and day_res.new_daily_budget >= 1e-2:
-        msg += f"Новый бюджет на день: <b>{format_float(day_res.new_daily_budget)}</b>"
+        msg += f"Новый дневной бюджет: <b>{format_float(day_res.new_daily_budget)}</b>"
         msg += "\n"
 
     return msg

@@ -86,7 +86,7 @@ async def process_days_left_step(message: Message, state: FSMContext) -> None:
             await message.answer(text.days_left_must_be_positive(days_left), reply_markup=kb.cancel_button())
             return
         if days_left >= 1000:
-            await message.answer("Можно указать не более <b>1000</b> дней")
+            await message.answer("Выберите срок менее <b>1000</b> дней")
             return 
 
         await state.update_data(days_left=days_left)
