@@ -77,6 +77,7 @@ def budget_must_be_positive(amount: float) -> str:
 def budget_too_big(amount: float) -> str:
     return f"Вы указали <b>слишком большой</b> бюджет. Укажите бюджет поменьше, например <b>{str(int(amount))[:10]}</b>"
 
+
 def days_left_must_be_positive(input: int) -> str:
     if input == 0:
         input = 5
@@ -110,10 +111,10 @@ def settings_message(user: domain.User, timezone: domain.UserTimezoneInfo | None
 
 Категории:
 <b>{
-"\n".join([" - " + category.name for category in categories])
-if categories is not None and len(categories) != 0
-else "не указаны"
-}</b>
+    "\n".join([" - " + category.name for category in categories])
+    if categories is not None and len(categories) != 0
+    else "не указаны"
+    }</b>
 """
 
 
@@ -301,6 +302,22 @@ def help_msg() -> str:
 <b>Мне не нравится бот</b>
     - Ничего страшного, всегда можно написать /stop!
 """
+
+
+def you_have_to_be_admin():
+    from random import choice
+    messages = [
+        "<b>uuyccyycocuu kuuc  yfyoff yfk uckfouckcf oco ucf c  yuf uc ofuoufuyyuckuyu!</b>",
+        "<b>Детям вход воспрещён.</b>",
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "<b>Мальчик, ты кто?</b>",
+        "<b>18+, тебе ещё нельзя</b>",
+        "<b>Admins only</b>",
+        "<b>Нет.</b>"
+    ]
+
+    msg = choice(messages)
+    return msg
 
 
 def cancelled():

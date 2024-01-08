@@ -43,3 +43,16 @@ async def callback_stop_reason(cq: CallbackQuery) -> None:
 
     await cq.answer("Спасибо за отзыв!")
     await cq.message.edit_text(text.thanks_for_review(), reply_markup=None)
+
+
+@stop_router.message(Command("toall"))
+async def command_toall(message: Message) -> None:
+    sender_name = message.from_user.username
+    if sender_name not in app.state.get().admin_usernames:
+        await message.answer(text.you_have_to_be_admin())
+    else:
+        content = message.text.replace("/toall", "").strip()
+        users = await app.state.get().users_repo.get_all()
+        for user in users:
+            await message.bot.send_message(user.id, content)
+        await message.reply("<b>Успех</b>")
