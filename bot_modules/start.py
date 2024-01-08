@@ -106,6 +106,7 @@ async def process_days_left_step(message: Message, state: FSMContext) -> None:
             return
         if days_left >= 1000:
             await message.answer("<b>Выберите срок менее 1000 дней.</b>")
+            return 
 
         await state.update_data(days_left=days_left)
         await message.answer(
