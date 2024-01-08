@@ -50,7 +50,7 @@ async def command_settings(message: Message, state: FSMContext) -> None:
 async def process_timezone_from_msk_step(message: Message, state: FSMContext) -> None:
     try:
         timezone = int(message.text)
-        if abs(timezone) > 24:
+        if abs(timezone) >= 24:
             await message.answer(text.timezone_must_be_integer(), reply_markup=kb.cancel_button())
             return
         await state.update_data(timezone_msk=timezone)
