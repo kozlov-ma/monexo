@@ -1,5 +1,6 @@
 from typing import Iterable
 
+import domain
 from app import Added, Spent, SpentOverDailyBudget, SpentAllBudget, DayResults, PeriodEnded
 
 
@@ -96,6 +97,35 @@ def settings_saved(budget: float, days_left: int) -> str:
             f"Бюджет на день: <b>{format_float(budget / days_left)}</b>")
 
 
+def settings_message(user: domain.User, timezone: domain.UserTimezoneInfo | None,
+                     categories: list[domain.Category] | None):
+    return f"""<b>Настройки</b>
+Бюджет: <b>{user.remaining_budget + user.budget_today}</b>
+Дней осталось: <b>{user.days_left}</b>
+Остаток на сегодня: <b>{user.budget_today}</b>
+Часовой пояс: <b>{f"МСК+{timezone.timezone}" if timezone is not None else "не указан"}</b>
+
+Категории:
+<b>{
+"\n".join([category.name for category in categories])
+if categories is not None and len(categories) != 0
+else "не указаны"
+}</b>
+"""
+
+
+def budget_saved(budget: float):
+    return f"Отлично! Бюджет сохранен: <b>{format_float(budget)}</b>"
+
+
+def days_left_saved(days_left: int):
+    return f"Отлично! Количество дней сохранено: <b>{days_left}</b>"
+
+
+def timezone_saved(timezone: int):
+    return f"Отлично! Часовой пояс сохранен: МСК+{timezone}"
+
+
 def autoupdate_enabled() -> str:
     return f"Автообновление включено"
 
@@ -141,7 +171,7 @@ def categories_set(created: Iterable[str], removed: Iterable[str], unchanged: It
         msg += "<b>Следующие категории не изменились</b>:\n" + "\n".join("  = " + c for c in unchanged) + "\n"
 
     if len(created) + len(removed) + len(unchanged) == 0:
-        msg = "<b>Список категорий очищен.</b>"
+        msg = "<b>Список категорий очищен.</b>\n"
 
     return msg
 
