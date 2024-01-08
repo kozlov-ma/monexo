@@ -36,7 +36,7 @@ async def budget_change(message: Message) -> None:
         await message.answer(f"Введено слишком большое число, введите не более <b>{text.format_float(50_000_000)}</b>")
         return 
 
-    if result == 0:
+    if abs(result) <= 1e-3:
         await message.answer(text.cannot_spend_zero_sum(), parse_mode="HTML")
         return
 
