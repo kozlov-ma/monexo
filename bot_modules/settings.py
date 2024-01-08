@@ -13,7 +13,6 @@ import bot_modules
 import domain
 from bot_modules import text, kb
 
-
 settings_router = Router()
 
 
@@ -32,7 +31,7 @@ class SettingsForm(StatesGroup):
 async def command_settings(message: Message, state: FSMContext) -> None:
     sender = message.from_user.id
     user = (await app.state.get().users_repo.get_by_id(sender)).unwrap_or(None)
-    
+
     if user is None:
         await state.clear()
         if (await app.state.get().tz_repo.get_by_id(message.from_user.id)).unwrap_or(None) is None:
@@ -150,8 +149,9 @@ async def process_budget(message: Message, state: FSMContext) -> None:
         if budget <= 0:
             await message.answer(text.budget_must_be_positive(budget))
             return
-        # if len(message.text) >= 5:
-        # await message.answer(text.big_numbers_format_hint())
+        if budget >= 1_000_000_000:
+            await message.answer(text.budget_too_big(budget))
+            return
 
         user = (await app.state.get().users_repo.get_by_id(sender)).unwrap_or(None)
         if user is None:
@@ -266,17 +266,18 @@ async def process_categories(message: Message, state: FSMContext) -> None:
 
         for c_name in created_names:
             new_cat = domain.Category(uuid.uuid4().int % 2 ** 31, sender,
-                               c_name)  # FIXME Саня сделай получение id
+                                      c_name)  # FIXME Саня сделай получение id
             await app.state.get().bc_repo.add_category(new_cat)
 
         await state.clear()
         if len(new_categories) >= 7:
             await message.answer(text.too_many_categories(), reply_markup=kb.change_categories(), parse_mode="HTML")
 
-        await message.answer(f"""{text.categories_set(created_names, (c.name for c in deleted), (c.name for c in unchanged))}
+        await message.answer(
+            f"""{text.categories_set(created_names, (c.name for c in deleted), (c.name for c in unchanged))}
 {await get_settings_message(sender)}
 """,
-                             reply_markup=kb.settings(), parse_mode="HTML")
+            reply_markup=kb.settings(), parse_mode="HTML")
 
         app.state.get().telemetry.int_values["Categories users"] += 1
     except ValueError:
