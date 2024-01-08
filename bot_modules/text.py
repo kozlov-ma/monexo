@@ -104,7 +104,7 @@ def settings_saved(budget: float, days_left: int) -> str:
 def settings_message(user: domain.User, timezone: domain.UserTimezoneInfo | None,
                      categories: list[domain.Category] | None):
     return f"""<b>Настройки</b>
-Бюджет: <b>{user.remaining_budget + user.budget_today}</b>
+Бюджет: <b>{user.remaining_budget}</b>
 Дней осталось: <b>{user.days_left}</b>
 Остаток на сегодня: <b>{user.budget_today}</b>
 Часовой пояс: <b>{f"МСК+{timezone.timezone}" if timezone is not None else "не указан"}</b>
