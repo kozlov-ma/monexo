@@ -65,7 +65,7 @@ async def process_timezone_from_msk_step(message: Message, state: FSMContext) ->
 async def process_budget_step(message: Message, state: FSMContext) -> None:
     try:
         budget = float(message.text.replace("_", ""))
-        if budget <= 0:
+        if budget <= 1e-2:
             await message.answer(text.budget_must_be_positive(budget))
             return
         if budget >= 1_000_000_000:
@@ -150,7 +150,7 @@ async def process_budget(message: Message, state: FSMContext) -> None:
     try:
         sender = message.from_user.id
         budget = float(message.text.replace("_", ""))
-        if budget <= 0:
+        if budget <= 1e-2:
             await message.answer(text.budget_must_be_positive(budget))
             return
         if budget >= 1_000_000_000:
