@@ -52,6 +52,8 @@ async def command_toall(message: Message) -> None:
         await message.answer(text.you_have_to_be_admin())
     else:
         content = message.text.replace("/toall", "").strip()
+        if len(content) == 0:
+            await message.reply("<b>Ошибка:</b> нельзя отправить пустое сообщение. Используйте /toall [сообщение]")
         users = await app.state.get().users_repo.get_all()
         for user in users:
             await message.bot.send_message(user.id, content)
