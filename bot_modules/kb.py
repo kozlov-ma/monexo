@@ -35,7 +35,7 @@ async def categories_for_expense(user_id: int, message_id: int, value: float) ->
 
 
 def cancel_button() -> InlineKeyboardMarkup:
-    btn = InlineKeyboardButton(text="Отменить ввод", callback_data="cancel")
+    btn = InlineKeyboardButton(text="Отменить", callback_data="cancel")
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 
     return keyboard
