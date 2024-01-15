@@ -1,5 +1,6 @@
 import logging
 
+import aiogram.exceptions
 from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
@@ -58,6 +59,10 @@ async def command_toall(message: Message) -> None:
             return 
         users = await app.state.get().users_repo.get_all()
         for user in users:
-            await message.bot.send_message(user.id, content)
+            try:
+                await message.bot.send_message(user.id, content)
+            except aiogram.exceptions.TelegramForbiddenError:
+                await app.state.get().users_repo.remove_user_by_id(user.id)  # FIXME result
+                await app.state.get().bc_repo.remove_all_budget_changes_by_tg_id(user.id)
+                await app.state.get().tz_repo.remove_by_id(user.id)
         await message.reply("<b>Успех</b>")
-        
