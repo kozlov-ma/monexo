@@ -22,6 +22,7 @@ async def callback_stop(cq: CallbackQuery) -> None:
         await cq.message.edit_text(text.stop_msg(), reply_markup=kb.stop_keyboard())
         await app.state.get().users_repo.remove_user_by_id(cq.from_user.id)  # FIXME result
         await app.state.get().bc_repo.remove_all_budget_changes_by_tg_id(cq.from_user.id)
+        await app.state.get().tz_repo.remove_by_id(cq.from_user.id)
         await cq.answer("Бот остановлен..")
     except Exception as e:
         logging.exception(e)
@@ -59,3 +60,4 @@ async def command_toall(message: Message) -> None:
         for user in users:
             await message.bot.send_message(user.id, content)
         await message.reply("<b>Успех</b>")
+        

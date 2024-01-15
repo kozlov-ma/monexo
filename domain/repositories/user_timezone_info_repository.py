@@ -25,7 +25,7 @@ class UserTimezoneInfoRepositoryBase(ABC):
         pass
 
     @abstractmethod
-    async def remove_by_id(self, id: int) -> Option[UserTimezoneInfo]:
+    async def remove_by_id(self, telegram_id: int) -> Option[UserTimezoneInfo]:
         pass
 
     @abstractmethod
@@ -74,9 +74,9 @@ class PostgresUserTimezoneInfoRepository(UserTimezoneInfoRepositoryBase):
         await self.session.commit()
         return Ok(None)
 
-    async def remove_by_id(self, id: int) -> Option[UserTimezoneInfo]:
+    async def remove_by_id(self, telegram_id: int) -> Option[UserTimezoneInfo]:
         statement = (select(DbUserTimezoneInfo)
-                     .where(DbUserTimezoneInfo.user_telegram_id == id))
+                     .where(DbUserTimezoneInfo.user_telegram_id == telegram_id))
 
         get_timezone = await self.session.scalar(statement)
 
